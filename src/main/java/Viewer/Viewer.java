@@ -4,6 +4,7 @@ import Controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class Viewer extends JFrame {
 
@@ -40,19 +41,53 @@ public class Viewer extends JFrame {
         panel.removeAll();
 
 
+        JLabel textAboveSourceButton = new JLabel("Choose source path:");
+
+
         MyButton changeSourcePath = new MyButton(sourcePath);
+        changeSourcePath.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new File(sourcePath));
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            int temp = chooser.showDialog(panel, "Choose input Directory");
+            if (temp == JFileChooser.APPROVE_OPTION) {
+                File directory = chooser.getSelectedFile();
+                String newSourcePath = directory.toString();
+                controller.setSourcePath(newSourcePath,destinationPath);
+            }
+        });
+
+
+
+        JLabel textAboveDestinationButton = new JLabel("Choose destination path:");
+
         MyButton changeDestinationPath = new MyButton(destinationPath);
+        changeDestinationPath.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new File(destinationPath));
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            int temp = chooser.showDialog(panel, "Choose output Directory");
+            if (temp == JFileChooser.APPROVE_OPTION) {
+                File directory = chooser.getSelectedFile();
+                String newDestinationPath = directory.toString();
+                controller.setSourcePath(sourcePath,newDestinationPath);
+            }
+        });
 
         MyButton executeCopyPhoto = new MyButton("Start Copying Photo");
         executeCopyPhoto.addActionListener(e -> controller.runExecuteCopyPhoto());
 
 
 
+        panel.add(textAboveSourceButton);
         panel.add(changeSourcePath);
+        panel.add(textAboveDestinationButton);
         panel.add(changeDestinationPath);
         panel.add(executeCopyPhoto);
         SwingUtilities.updateComponentTreeUI(frame);
-
-
     }
+
+
 }

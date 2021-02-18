@@ -6,131 +6,147 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 
-import java.io.File;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class Model {
-    private String sourcePath = "H:\\input";
-
-    private String destinationPath = "H:\\output";
-
-    private static String createDest(File photo) throws Exception {
-        String destPath;
-        String tempPath = "H:\\out2\\";
-        String tempYear = "";
-        Metadata metadata = ImageMetadataReader.readMetadata(photo);
-        Object[] fff = null;
-        for (Directory directory : metadata.getDirectories()) {
-            fff = directory.getTags().toArray();
-        }
-        try {
-            String tempInfo = fff[fff.length - 1].toString();
-            tempYear = tempInfo.substring(tempInfo.length() - 4);
-            System.out.println("----------------- " + tempYear);
-        } catch (Exception e) {
-        }
-        System.out.println(tempPath + tempYear);
-        return tempPath + tempYear;
-    }
+    private String sourcePath;
+    private String destinationPath;
 
     public String getSourcePath() {
         return sourcePath;
+    }
+
+    public void setSourcePath(String sourcePath) {
+        this.sourcePath = sourcePath;
     }
 
     public String getDestinationPath() {
         return destinationPath;
     }
 
-    public void copyDir(String sourceDirName, String targetSourceDir) throws Exception {
+    public void setDestinationPath(String destinationPath) {
+        this.destinationPath = destinationPath;
+    }
 
-
-        //Создаю обьект файл в который передаётся путь к папке с файлами,
-        // которые нужно скопировать
-        File folder = new File(sourceDirName);
-        //Получаю список имён всех файлов из данной папки
-        File[] listOfFiles = folder.listFiles();
-
-
-        //Path destDir = Paths.get(targetSourceDir);
-
-        String name;
-
-
-        if (listOfFiles != null) {
-            for (File file : listOfFiles) {
-
-                name = file.getName();
-                name = name.substring(name.length() - 3);
-
-                if (name.equals(/*"jpg"*/"CR2")) {
-                    //  createDest(file);
-                    Path destDir = Paths.get(createDest(file));
-                    File theDir = new File(createDest(file));
-                    if (!theDir.exists()) {
-                        theDir.mkdirs();
-                    }
-                    Files.copy(file.toPath(), destDir.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
-                }
-                if (!file.getName().matches(".+[.].+")) {
-
-                    System.out.println(file.getName() + "   " + file.getName().matches(".+[.].+"));
-                    copyDir(file.getAbsolutePath(), targetSourceDir);
-                }
-            }
+    public void readSettings() {
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream("setting.txt"))) {
+            sourcePath = inputStream.readUTF();
+            destinationPath = inputStream.readUTF();
+        } catch (Exception e) {
+            System.out.println("Exception in readSetting()");
         }
+    }
 
-
+    public void writeSettings(String source, String destination) {
+        try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream("setting.txt"))) {
+            outputStream.writeUTF(source);
+            outputStream.writeUTF(destination);
+        } catch (Exception f) {
+            System.out.println("Exception in writeSetting()");
+        }
     }
 
 
-    public void copy(String sourcePath) {
+    public void startCopyFilesProcess(String sourcePath) {
+        searchingFiles(sourcePath);
+    }
 
+
+    private void searchingFiles(String sourcePath) {
         File[] listOfInputFiles = getListOfInputFiles(sourcePath);
-
-
         if (listOfInputFiles.length != 0) {
+
             for (File inputFile : listOfInputFiles) {
                 if (!inputFile.isFile()) {
-                    copy(inputFile.getAbsolutePath());
+                    searchingFiles(inputFile.getAbsolutePath());
                 } else {
-
-                    System.out.println();
-                    System.out.println("-------------------------*******************************************************");
-                    System.out.println(inputFile.getName());
-
-
-                    String[] allOfFileInfo = getInfoOfFile(inputFile);
-                    //  System.out.println();
-                    //   System.out.print(inputFile.getName() + " ------ ");
-                    //    for (String dates : allOfFileInfo) System.out.print(dates + " ----- ");
-
-
-                    if (allOfFileInfo[0] != null) {
-                        String newDestinationPath = createNewDestinationPath(allOfFileInfo);
-                          System.out.println(newDestinationPath);
-                        Path ou = Paths.get(newDestinationPath);
-                        try {
-                            File theDir = new File(newDestinationPath);
-                            if (!theDir.exists()) {
-                                theDir.mkdirs();
-                            }
-                            Files.copy(inputFile.toPath(), ou.resolve(inputFile.getName()), StandardCopyOption.REPLACE_EXISTING);
-                        } catch (Exception t) {
-                            System.out.println("Exception in copiyng");
-                        }
-                    }
+                    copyingFile(inputFile);
                 }
             }
 
         } else {
             System.out.println("Files not found");
         }
+    }
+
+    private void copyingFile(File file) {
+        System.out.println(file.getName());
+        String[] allOfFileInfo = getInfoOfFile(file);
+
+        if (allOfFileInfo[0] != null) {
+            String newDestinationString = createNewDestinationPath(allOfFileInfo);
+            Path newDestinationPath = Paths.get(newDestinationString);
+            try {
+                checkExistingDirectory(newDestinationString);
+                //if (Files.exists(newDestinationPath.resolve(file.getName()))) {
+
+                //    File tempFile = new File(createNewNameForRepeatingFile(file));
+                if(Files.exists(newDestinationPath.resolve(file.getName()))) {
+                    testingExsisting(file,newDestinationPath);
+                }
+
+                //    Files.copy(file.toPath(), newDestinationPath.resolve(file.getName()),
+                  //          StandardCopyOption.REPLACE_EXISTING);
+              //  }
+
+
+             //   System.out.println("++++++++++++++++++++++++"+filehh.getName());
+
+                    Files.copy(file.toPath(), newDestinationPath.resolve(file.getName()),
+                            StandardCopyOption.REPLACE_EXISTING);
+
+            } catch (Exception t) {
+                System.out.println("Exception in copying");
+            }
+        }
+    }
+
+    private  void testingExsisting(File file,Path destinationPath) throws Exception{
+        File tempFile = file ;
+        if (Files.exists(destinationPath.resolve(file.getName()))) {
+            tempFile = new File(createNewNameForRepeatingFile(file));
+            System.out.println("---------------------"+tempFile.getName());
+            testingExsisting(tempFile,destinationPath);
+            Files.copy(file.toPath(), destinationPath.resolve(tempFile.getName()),
+                    StandardCopyOption.REPLACE_EXISTING);
+
+
+
+        }else{
+            Files.copy(file.toPath(), destinationPath.resolve(tempFile.getName()),
+                    StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("==8888888888888888888888888888888888888");
+        }
+
+
+           // Files.copy(file.toPath(), destinationPath.resolve(tempFile.getName()),
+          //          StandardCopyOption.REPLACE_EXISTING);
 
 
     }
+
+    private String createNewNameForRepeatingFile(File file) {
+        String[] tempFileName = file.getName().split("\\.");
+        String newFileName = sourcePath + "\\" + tempFileName[0] + "-1" + "." + tempFileName[1];
+        System.out.println("==========================" + newFileName);
+        return  newFileName;
+    }
+
+    private void checkExistingDirectory(String destination) {
+        File newFile = new File(destination);
+        if (!newFile.exists()) {
+            createNewDirectory(newFile);
+        }
+    }
+
+    private void createNewDirectory(File file) {
+        if (!file.mkdirs()) System.out.println("Directory didn't created");
+    }
+
 
     private String[] getInfoOfFile(File file) {
         String dateOfFile = "";
@@ -147,25 +163,23 @@ public class Model {
 
                     if (tag.toString().contains("[File] File Name")) {
                         String[] testName = tag.toString().split("\\.");
-                        if(testName.length != 2) {
+                        if (testName.length != 2) {
                             break;
                         }
                     }
 
 
-                            if (tag.toString().contains("File Modified Date")) {
-                                dateOfFile = tag.toString();
-                                System.out.println(dateOfFile);
+                    if (tag.toString().contains("File Modified Date")) {
+                        dateOfFile = tag.toString();
 
-                                System.out.println(typeOfFile);
-
-                            }
-                            if (tag.toString().contains("Detected File Type Name")) {
-                                typeOfFile = tag.toString();
-                            }
 
                     }
+                    if (tag.toString().contains("Detected File Type Name")) {
+                        typeOfFile = tag.toString();
+                    }
+
                 }
+            }
 
             //   System.out.println(typeOfFile);
 
@@ -220,16 +234,8 @@ public class Model {
         return sourceFolder.listFiles();
     }
 
-    private File getInputFile(File[] listOfInputFiles) {
-
-        return null;
-    }
 
     private String createNewDestinationPath(String[] fileInfo) {
-        String newDestinationPath;
-        newDestinationPath =
-                destinationPath + "\\" + fileInfo[0] + "\\" + fileInfo[3] + "\\" + fileInfo[2] + " " + fileInfo[1] +
-                        "\\";
-        return newDestinationPath;
+        return destinationPath + "\\" + fileInfo[0] + "\\" + fileInfo[3] + "\\" + fileInfo[2] + " " + fileInfo[1] + "\\";
     }
 }

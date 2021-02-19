@@ -8,7 +8,6 @@ import com.drew.metadata.Tag;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -79,25 +78,26 @@ public class Model {
 
         if (allOfFileInfo[0] != null) {
             String newDestinationString = createNewDestinationPath(allOfFileInfo);
-            Path newDestinationPath = Paths.get(newDestinationString);
+            // Path newDestinationPath = Paths.get(newDestinationString);
             try {
                 checkExistingDirectory(newDestinationString);
                 //if (Files.exists(newDestinationPath.resolve(file.getName()))) {
 
                 //    File tempFile = new File(createNewNameForRepeatingFile(file));
-                if(Files.exists(newDestinationPath.resolve(file.getName()))) {
-                    testingExsisting(file,newDestinationPath);
-                }
+                //  if(Files.exists(newDestinationPath.resolve(file.getName()))) {
+                newDestinationString = getFinalDestinationPath(file, newDestinationString);
+                testingExisting(file, newDestinationString);
+                //  }
 
                 //    Files.copy(file.toPath(), newDestinationPath.resolve(file.getName()),
-                  //          StandardCopyOption.REPLACE_EXISTING);
-              //  }
+                //          StandardCopyOption.REPLACE_EXISTING);
+                //  }
 
 
-             //   System.out.println("++++++++++++++++++++++++"+filehh.getName());
+                //   System.out.println("++++++++++++++++++++++++"+filehh.getName());
 
-                    Files.copy(file.toPath(), newDestinationPath.resolve(file.getName()),
-                            StandardCopyOption.REPLACE_EXISTING);
+                //    Files.copy(file.toPath(), newDestinationPath.resolve(file.getName()),
+                //       StandardCopyOption.REPLACE_EXISTING);
 
             } catch (Exception t) {
                 System.out.println("Exception in copying");
@@ -105,7 +105,7 @@ public class Model {
         }
     }
 
-    private  void testingExsisting(File file,Path destinationPath) throws Exception{
+  /*/  private  void testingExsisting(File file,Path destinationPath) throws Exception{
         File tempFile = file ;
         if (Files.exists(destinationPath.resolve(file.getName()))) {
             tempFile = new File(createNewNameForRepeatingFile(file));
@@ -122,18 +122,40 @@ public class Model {
             System.out.println("==8888888888888888888888888888888888888");
         }
 
+    }*/
 
-           // Files.copy(file.toPath(), destinationPath.resolve(tempFile.getName()),
-          //          StandardCopyOption.REPLACE_EXISTING);
+    private void testingExisting(File file, String destinationPath)  {
+        System.out.println(destinationPath);
+        //if (Files.exists(Paths.get(destinationPath).resolve(file.getName()))) {
+            if (Files.exists(Paths.get(destinationPath))) {
+            destinationPath = createNewNameForRepeatingFile(destinationPath);
+            testingExisting(file, destinationPath);
+        } else {
 
+            writeFileToDestination(file, destinationPath);
+        }
 
     }
 
-    private String createNewNameForRepeatingFile(File file) {
-        String[] tempFileName = file.getName().split("\\.");
-        String newFileName = sourcePath + "\\" + tempFileName[0] + "-1" + "." + tempFileName[1];
+    private void writeFileToDestination(File file, String destinationPath) {
+        try {
+            Files.copy(file.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException exception) {
+            System.out.println("Writing file failed");
+        }
+    }
+
+    private String getFinalDestinationPath(File file, String destinationPath) {
+        return destinationPath + file.getName();
+    }
+
+
+    private String createNewNameForRepeatingFile(String destinationPath) {
+        String[] tempFileName = destinationPath.split("\\.");
+
+        String newFileName = /*sourcePath + "\\" +*/ tempFileName[0] + "-1" + "." + tempFileName[1];
         System.out.println("==========================" + newFileName);
-        return  newFileName;
+        return newFileName;
     }
 
     private void checkExistingDirectory(String destination) {

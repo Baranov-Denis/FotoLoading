@@ -7,6 +7,7 @@ public class Controller {
     private final Model model;
     private Viewer viewer;
 
+
     public Controller(Model model) {
         this.model = model;
     }
@@ -22,8 +23,13 @@ public class Controller {
         viewer.runMainPage();
     }
 
+
+
+
     public void runExecuteCopyPhoto() {
-        model.startCopyFilesProcess(model.getSourcePath());
+        model.startCopyingFilesProcess(model.getSourcePath());
+        viewer.message = "Done";
+        model.setContinueExecute(true);
         viewer.runMainPage();
     }
 

@@ -6,6 +6,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 
+import javax.swing.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,6 +15,12 @@ import java.nio.file.StandardCopyOption;
 public class Model {
     private String sourcePath;
     private String destinationPath;
+    private boolean continueExecute = true;
+
+
+    public void setContinueExecute(boolean continueExecute) {
+        this.continueExecute = continueExecute;
+    }
 
     public String getSourcePath() {
         return sourcePath;
@@ -37,6 +44,9 @@ public class Model {
             destinationPath = inputStream.readUTF();
         } catch (Exception e) {
             System.out.println("Exception in readSetting()");
+            sourcePath = "D:\\";
+            destinationPath = "D:\\";
+            writeSettings(sourcePath,destinationPath);
         }
     }
 
@@ -50,98 +60,84 @@ public class Model {
     }
 
 
-    public void startCopyFilesProcess(String sourcePath) {
-        searchingFiles(sourcePath);
+    public void startCopyingFilesProcess(String sourcePath) {
+        searchingInputFiles(sourcePath);
     }
 
 
-    private void searchingFiles(String sourcePath) {
-        File[] listOfInputFiles = getListOfInputFiles(sourcePath);
-        if (listOfInputFiles.length != 0) {
 
+    File[] listOfInputFiles;
+
+    private void searchingInputFiles(String sourcePath) {
+
+        listOfInputFiles = getListOfInputFiles(sourcePath);
+
+        if (listOfInputFiles.length != 0) {
             for (File inputFile : listOfInputFiles) {
                 if (!inputFile.isFile()) {
-                    searchingFiles(inputFile.getAbsolutePath());
+                    searchingInputFiles(inputFile.getAbsolutePath());
                 } else {
-                    copyingFile(inputFile);
+                    if(continueExecute) {
+                        copyingFile(inputFile);
+                    }
                 }
             }
-
         } else {
             System.out.println("Files not found");
         }
     }
 
+    private File[] getListOfInputFiles(String sourcePath) {
+        File sourceFolder = new File(sourcePath);
+        return sourceFolder.listFiles();
+    }
+
+
     private void copyingFile(File file) {
-        System.out.println(file.getName());
+
         String[] allOfFileInfo = getInfoOfFile(file);
 
         if (allOfFileInfo[0] != null) {
-            String newDestinationString = createNewDestinationPath(allOfFileInfo);
-            // Path newDestinationPath = Paths.get(newDestinationString);
-            try {
-                checkExistingDirectory(newDestinationString);
-                //if (Files.exists(newDestinationPath.resolve(file.getName()))) {
 
-                //    File tempFile = new File(createNewNameForRepeatingFile(file));
-                //  if(Files.exists(newDestinationPath.resolve(file.getName()))) {
-                newDestinationString = getFinalDestinationPath(file, newDestinationString);
-                testingExisting(file, newDestinationString);
-                //  }
+            String destinationPathWithoutFileName = createNewDestinationPathWithoutFileName(allOfFileInfo);
 
-                //    Files.copy(file.toPath(), newDestinationPath.resolve(file.getName()),
-                //          StandardCopyOption.REPLACE_EXISTING);
-                //  }
+            checkExistingDirectory(destinationPathWithoutFileName);
+            String destinationPathWithFileName = getFinalDestinationPath(file, destinationPathWithoutFileName);
+            checkingForFilesWithDuplicateNames(file, destinationPathWithFileName);
 
-
-                //   System.out.println("++++++++++++++++++++++++"+filehh.getName());
-
-                //    Files.copy(file.toPath(), newDestinationPath.resolve(file.getName()),
-                //       StandardCopyOption.REPLACE_EXISTING);
-
-            } catch (Exception t) {
-                System.out.println("Exception in copying");
-            }
         }
     }
 
-  /*/  private  void testingExsisting(File file,Path destinationPath) throws Exception{
-        File tempFile = file ;
-        if (Files.exists(destinationPath.resolve(file.getName()))) {
-            tempFile = new File(createNewNameForRepeatingFile(file));
-            System.out.println("---------------------"+tempFile.getName());
-            testingExsisting(tempFile,destinationPath);
-            Files.copy(file.toPath(), destinationPath.resolve(tempFile.getName()),
-                    StandardCopyOption.REPLACE_EXISTING);
+    private String createNewDestinationPathWithoutFileName(String[] fileInfo) {
+        return destinationPath + "\\" + fileInfo[0] + "\\" + fileInfo[3] + "\\" + fileInfo[3] + " " + fileInfo[2] +
+                " " + fileInfo[1] +
+                "\\";
+    }
 
 
+    private void checkingForFilesWithDuplicateNames(File file, String destinationPath)  {
 
-        }else{
-            Files.copy(file.toPath(), destinationPath.resolve(tempFile.getName()),
-                    StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("==8888888888888888888888888888888888888");
-        }
+        if (Files.exists(Paths.get(destinationPath))) {
 
-    }*/
-
-    private void testingExisting(File file, String destinationPath)  {
-        System.out.println(destinationPath);
-        //if (Files.exists(Paths.get(destinationPath).resolve(file.getName()))) {
-            if (Files.exists(Paths.get(destinationPath))) {
-            destinationPath = createNewNameForRepeatingFile(destinationPath);
-            testingExisting(file, destinationPath);
+            int inp = JOptionPane.showConfirmDialog(new JPanel(),
+                    "Do you want to change name this file : " + file.getName() + " " +
+                    "?");
+            if(inp == 0) {
+                destinationPath = createNewNameForRepeatingFile(destinationPath);
+                checkingForFilesWithDuplicateNames(file, destinationPath);
+            }else if(inp == 2){
+continueExecute = false;
+            }
         } else {
-
             writeFileToDestination(file, destinationPath);
         }
-
     }
 
     private void writeFileToDestination(File file, String destinationPath) {
         try {
             Files.copy(file.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException exception) {
-            System.out.println("Writing file failed");
+            System.out.println("Writing file failed!");
         }
     }
 
@@ -151,10 +147,19 @@ public class Model {
 
 
     private String createNewNameForRepeatingFile(String destinationPath) {
-        String[] tempFileName = destinationPath.split("\\.");
-
-        String newFileName = /*sourcePath + "\\" +*/ tempFileName[0] + "-1" + "." + tempFileName[1];
-        System.out.println("==========================" + newFileName);
+        String[] fileNameSplitByPoint = destinationPath.split("\\.");
+        String[] fileNameSplitBySlash = fileNameSplitByPoint[0].split("\\\\");
+        String newFileName;
+        if (!fileNameSplitBySlash[fileNameSplitBySlash.length-1].contains("Duplicate")) {
+            newFileName =
+                    fileNameSplitByPoint[0] + "__Duplicate-1"  +
+                            "." + fileNameSplitByPoint[1];
+        }else {
+            String[] splitByDuplicate = fileNameSplitByPoint[0].split("__Duplicate-");
+            int countOfDuplicate = Integer.parseInt(splitByDuplicate[1]);
+            newFileName = splitByDuplicate[0]  + "__Duplicate-"  + ++countOfDuplicate +
+                    "." + fileNameSplitByPoint[1];
+        }
         return newFileName;
     }
 
@@ -190,12 +195,10 @@ public class Model {
                         }
                     }
 
-
                     if (tag.toString().contains("File Modified Date")) {
                         dateOfFile = tag.toString();
-
-
                     }
+
                     if (tag.toString().contains("Detected File Type Name")) {
                         typeOfFile = tag.toString();
                     }
@@ -203,7 +206,6 @@ public class Model {
                 }
             }
 
-            //   System.out.println(typeOfFile);
 
             String[] tempAllDates = dateOfFile.substring(31).split(" ");
 
@@ -251,13 +253,5 @@ public class Model {
         return "Unknown";
     }
 
-    private File[] getListOfInputFiles(String sourcePath) {
-        File sourceFolder = new File(sourcePath);
-        return sourceFolder.listFiles();
-    }
 
-
-    private String createNewDestinationPath(String[] fileInfo) {
-        return destinationPath + "\\" + fileInfo[0] + "\\" + fileInfo[3] + "\\" + fileInfo[2] + " " + fileInfo[1] + "\\";
-    }
 }

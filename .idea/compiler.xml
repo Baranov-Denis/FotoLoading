@@ -6,8 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="FotoLoading" />
+        <module name="FotoLoader" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="FotoLoading" target="13" />
+    </bytecodeTargetLevel>
   </component>
 </project>

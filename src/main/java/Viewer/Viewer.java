@@ -15,6 +15,8 @@ public class Viewer extends JFrame {
     private String sourcePath;
     private String destinationPath;
 
+    public String message = "          ";
+
     public void setDestinationPath(String destinationPath) {
         this.destinationPath = destinationPath;
     }
@@ -30,7 +32,7 @@ public class Viewer extends JFrame {
     public void runMainPage(){
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(340, 340);
+        frame.setSize(344, 310);
         frame.setTitle("PhotoLoader");
         frame.setLocation(1300, 300);
         frame.setLayout(new FlowLayout());
@@ -75,9 +77,14 @@ public class Viewer extends JFrame {
                 controller.setSourcePath(sourcePath,newDestinationPath);
             }
         });
+        JLabel messageLabel = new JLabel(message);
 
         MyButton executeCopyPhoto = new MyButton("Start Copying Photo");
+        executeCopyPhoto.setPreferredSize(new Dimension(320,100));
         executeCopyPhoto.addActionListener(e -> controller.runExecuteCopyPhoto());
+
+
+
 
 
 
@@ -85,9 +92,13 @@ public class Viewer extends JFrame {
         panel.add(changeSourcePath);
         panel.add(textAboveDestinationButton);
         panel.add(changeDestinationPath);
+        panel.add(messageLabel);
         panel.add(executeCopyPhoto);
+        
         SwingUtilities.updateComponentTreeUI(frame);
     }
+
+
 
 
 }

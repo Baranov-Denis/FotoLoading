@@ -60,7 +60,7 @@ public class Model {
     }
 
 
-    public void startCopyingFilesProcess(String sourcePath) {
+    public void startCopyingFilesProcess() {
         searchingInputFiles(sourcePath);
     }
 
@@ -120,8 +120,7 @@ public class Model {
         if (Files.exists(Paths.get(destinationPath))) {
 
             int inp = JOptionPane.showConfirmDialog(new JPanel(),
-                    "Do you want to change name this file : " + file.getName() + " " +
-                    "?");
+                    "Do you want to change name this file : \n" + destinationPath + "?");
             if(inp == 0) {
                 destinationPath = createNewNameForRepeatingFile(destinationPath);
                 checkingForFilesWithDuplicateNames(file, destinationPath);

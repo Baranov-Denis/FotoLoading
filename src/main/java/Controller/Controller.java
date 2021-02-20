@@ -27,8 +27,7 @@ public class Controller {
 
 
     public void runExecuteCopyPhoto() {
-        model.startCopyingFilesProcess(model.getSourcePath());
-        viewer.message = "Done";
+        model.startCopyingFilesProcess();
         model.setContinueExecute(true);
         viewer.runMainPage();
     }

@@ -17,7 +17,7 @@ public class Model {
     private String sourcePath;
     private String destinationPath;
     private boolean operationContinues = true;
-    private ArrayList<File> listOfSourceFilesForCopying = new ArrayList<>();
+    private ArrayList<InputFile> listOfSourceFilesForCopying = new ArrayList<>();
 
     //--------------------------------------------------- Getters and Setters ---------------------------------
     //---------------------------------------------------------------------------------------------------------
@@ -71,8 +71,19 @@ public class Model {
 
     public void startCopyingFilesProcess() {
         getListOfRawInputFilesFromSourcePath(sourcePath);
-        for (File file : listOfSourceFilesForCopying) {
-            if(operationContinues) {
+        System.out.println("------------------------------------------" +listOfSourceFilesForCopying.size() );
+        for (InputFile file : listOfSourceFilesForCopying) {
+            if (operationContinues) {
+                getInfoOfFile(file);
+
+               /* System.out.println("name " + file.getName());
+                System.out.println("tyoe " + file.getType());
+                System.out.println("time " + file.getTime());
+                System.out.println("day " + file.getDay());
+                System.out.println("month " + file.getMonth());
+                System.out.println("year " + file.getYear());
+                System.out.println(file.getDestinationPathWithFileName());*/
+
                 copyingFile(file);
             }
         }
@@ -91,7 +102,7 @@ public class Model {
                 if (!rawInputFile.isFile()) {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
                 } else {
-                    listOfSourceFilesForCopying.add(rawInputFile);
+                    listOfSourceFilesForCopying.add(new InputFile(rawInputFile, destinationPath));
                 }
             }
         }
@@ -106,32 +117,39 @@ public class Model {
     //--------------------------------------------------------------------------------------------------------------
 
 
-    private void copyingFile(File file) {
+    private void copyingFile(InputFile file) {
 
-        String[] allOfFileInfo = getInfoOfFile(file);
+        //  String[] allOfFileInfo = getInfoOfFile(file);
 
-        if (allOfFileInfo[0] != null) {
-
-            String destinationPathWithoutFileName = createNewDestinationPathWithoutFileName(allOfFileInfo);
-
-            checkExistingDirectory(destinationPathWithoutFileName);
-            String destinationPathWithFileName = getFinalDestinationPath(file, destinationPathWithoutFileName);
-            checkingForFilesWithDuplicateNames(file, destinationPathWithFileName);
+        if (file != null) {
+            checkExistingDirectory(file.getDestinationPathWithoutFileName());
+            checkingForFilesWithDuplicateNames(file, file.getDestinationPathWithFileName());
 
         }
     }
 
-    private String createNewDestinationPathWithoutFileName(String[] fileInfo) {
+  /*  private String createNewDestinationPathWithoutFileName(String[] fileInfo) {
         return destinationPath + "\\" + fileInfo[0] + "\\" + fileInfo[3] + "\\" + fileInfo[3] + " " + fileInfo[2] +
                 " " + fileInfo[1] +
                 "\\";
-    }
+    }*/
 
 
-    private void checkingForFilesWithDuplicateNames(File file, String destinationPath) {
+    private void checkingForFilesWithDuplicateNames(InputFile file, String destinationPath) {
 
         if (Files.exists(Paths.get(destinationPath))) {
 
+           // File f = new File(destinationPath);
+            System.out.println("------------------------------------------" +file.getDestinationPathWithFileName() );
+            InputFile existFile = new InputFile(new File(destinationPath) , destinationPath);
+            getInfoOfFile(existFile);
+
+            if(!existFile.equals(file)){
+
+                destinationPath = createNewNameForRepeatingFile(destinationPath);
+                checkingForFilesWithDuplicateNames(file, destinationPath);
+            }
+/*
             int inp = JOptionPane.showConfirmDialog(new JPanel(),
                     "Do you want to change name this file : \n" + destinationPath + "?");
             if (inp == 0) {
@@ -139,9 +157,10 @@ public class Model {
                 checkingForFilesWithDuplicateNames(file, destinationPath);
             } else if (inp == 2) {
                 operationContinues = false;
-            }
+            }*/
         } else {
-            writeFileToDestination(file, destinationPath);
+            System.out.println(file.getName());
+            writeFileToDestination(file.getFile(), destinationPath);
         }
     }
 
@@ -152,11 +171,11 @@ public class Model {
             System.out.println("Writing file failed!");
         }
     }
-
+/*
     private String getFinalDestinationPath(File file, String destinationPath) {
         return destinationPath + file.getName();
     }
-
+*/
 
     private String createNewNameForRepeatingFile(String destinationPath) {
         String[] fileNameSplitByPoint = destinationPath.split("\\.");
@@ -186,83 +205,37 @@ public class Model {
         if (!file.mkdirs()) System.out.println("Directory didn't created");
     }
 
-
-    private String[] getInfoOfFile(File file) {
-        String dateOfFile = "";
-        String typeOfFile = "";
-        String[] allInfo = new String[4];
+    private void getInfoOfFile(InputFile file) {
 
         try {
-            Metadata metadata = ImageMetadataReader.readMetadata(file);
+            Metadata metadata = ImageMetadataReader.readMetadata(file.getFile());
 
             for (Directory directory : metadata.getDirectories()) {
 
 
                 for (Tag tag : directory.getTags()) {
 
-                    if (tag.toString().contains("[File] File Name")) {
-                        String[] testName = tag.toString().split("\\.");
-                        if (testName.length != 2) {
-                            break;
-                        }
+                    if (tag.toString().contains("[File] File Name") && tag.toString().length() != 2) {
+                        file.setName(tag.toString().substring(18).trim());
                     }
 
                     if (tag.toString().contains("File Modified Date")) {
-                        dateOfFile = tag.toString();
+                        String[] tempAllDates = tag.toString().substring(31).split(" ");
+                        file.setTime(tempAllDates[2].trim());
+                        file.setDay(tempAllDates[1].trim());
+                        file.setMonth(tempAllDates[0].replace(".", ""));
+                        file.setYear(tempAllDates[4].trim());
                     }
 
                     if (tag.toString().contains("Detected File Type Name")) {
-                        typeOfFile = tag.toString();
+                        file.setType(tag.toString().substring(38).trim());
                     }
 
                 }
             }
-
-
-            String[] tempAllDates = dateOfFile.substring(31).split(" ");
-
-            String[] type = typeOfFile.split(" ");
-
-            allInfo[0] = type[type.length - 1].trim();
-            allInfo[1] = tempAllDates[1].trim();
-            allInfo[2] = replaceMonthName(tempAllDates[0].replace(".", ""));
-            allInfo[3] = tempAllDates[4].trim();
-
         } catch (Exception e) {
             System.out.println("Exception in getInfoOfFile(File file) method");
         }
-
-        return allInfo;
-    }
-
-    private String replaceMonthName(String month) {
-        switch (month) {
-            case ("янв"):
-                return "Январь";
-            case ("февр"):
-                return "Февраль";
-            case ("мар"):
-                return "Март";
-            case ("апр"):
-                return "Апрель";
-            case ("мая"):
-                return "Май";
-            case ("июн"):
-                return "Июнь";
-            case ("июл"):
-                return "Июль";
-            case ("авг"):
-                return "Август";
-            case ("сент"):
-                return "Сентябрь";
-            case ("окт"):
-                return "Октябрь";
-            case ("нояб"):
-                return "Ноябрь";
-            case ("дек"):
-                return "Декабрь";
-        }
-        return "Unknown";
     }
 
 

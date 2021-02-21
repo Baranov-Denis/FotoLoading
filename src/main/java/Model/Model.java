@@ -11,15 +11,19 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 
 public class Model {
     private String sourcePath;
     private String destinationPath;
-    private boolean continueExecute = true;
+    private boolean operationContinues = true;
+    private ArrayList<File> listOfSourceFilesForCopying = new ArrayList<>();
 
+    //--------------------------------------------------- Getters and Setters ---------------------------------
+    //---------------------------------------------------------------------------------------------------------
 
-    public void setContinueExecute(boolean continueExecute) {
-        this.continueExecute = continueExecute;
+    public void setOperationContinues(boolean operationContinues) {
+        this.operationContinues = operationContinues;
     }
 
     public String getSourcePath() {
@@ -38,6 +42,9 @@ public class Model {
         this.destinationPath = destinationPath;
     }
 
+    //----------------------------------------------- Read and Write Settings ---------------------------------
+    //---------------------------------------------------------------------------------------------------------
+
     public void readSettings() {
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream("setting.txt"))) {
             sourcePath = inputStream.readUTF();
@@ -46,7 +53,7 @@ public class Model {
             System.out.println("Exception in readSetting()");
             sourcePath = "D:\\";
             destinationPath = "D:\\";
-            writeSettings(sourcePath,destinationPath);
+            writeSettings(sourcePath, destinationPath);
         }
     }
 
@@ -59,38 +66,44 @@ public class Model {
         }
     }
 
+    //---------------------------------------------- Start Method ------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------
 
     public void startCopyingFilesProcess() {
-        searchingInputFiles(sourcePath);
-    }
-
-
-
-    File[] listOfInputFiles;
-
-    private void searchingInputFiles(String sourcePath) {
-
-        listOfInputFiles = getListOfInputFiles(sourcePath);
-
-        if (listOfInputFiles.length != 0) {
-            for (File inputFile : listOfInputFiles) {
-                if (!inputFile.isFile()) {
-                    searchingInputFiles(inputFile.getAbsolutePath());
-                } else {
-                    if(continueExecute) {
-                        copyingFile(inputFile);
-                    }
-                }
+        getListOfRawInputFilesFromSourcePath(sourcePath);
+        for (File file : listOfSourceFilesForCopying) {
+            if(operationContinues) {
+                copyingFile(file);
             }
-        } else {
-            System.out.println("Files not found");
         }
     }
+
+    //------------------------------------- Get List Of Input Files ----------------------------------------------
+    //------------------------------------------------------------------------------------------------------------
+
+
+    private void getListOfRawInputFilesFromSourcePath(String sourcePath) {
+
+        File[] listOfRawInputFiles = getListOfInputFiles(sourcePath);
+
+        if (listOfRawInputFiles.length != 0) {
+            for (File rawInputFile : listOfRawInputFiles) {
+                if (!rawInputFile.isFile()) {
+                    getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
+                } else {
+                    listOfSourceFilesForCopying.add(rawInputFile);
+                }
+            }
+        }
+    }
+
 
     private File[] getListOfInputFiles(String sourcePath) {
         File sourceFolder = new File(sourcePath);
         return sourceFolder.listFiles();
     }
+
+    //--------------------------------------------------------------------------------------------------------------
 
 
     private void copyingFile(File file) {
@@ -115,17 +128,17 @@ public class Model {
     }
 
 
-    private void checkingForFilesWithDuplicateNames(File file, String destinationPath)  {
+    private void checkingForFilesWithDuplicateNames(File file, String destinationPath) {
 
         if (Files.exists(Paths.get(destinationPath))) {
 
             int inp = JOptionPane.showConfirmDialog(new JPanel(),
                     "Do you want to change name this file : \n" + destinationPath + "?");
-            if(inp == 0) {
+            if (inp == 0) {
                 destinationPath = createNewNameForRepeatingFile(destinationPath);
                 checkingForFilesWithDuplicateNames(file, destinationPath);
-            }else if(inp == 2){
-continueExecute = false;
+            } else if (inp == 2) {
+                operationContinues = false;
             }
         } else {
             writeFileToDestination(file, destinationPath);
@@ -149,14 +162,14 @@ continueExecute = false;
         String[] fileNameSplitByPoint = destinationPath.split("\\.");
         String[] fileNameSplitBySlash = fileNameSplitByPoint[0].split("\\\\");
         String newFileName;
-        if (!fileNameSplitBySlash[fileNameSplitBySlash.length-1].contains("Duplicate")) {
+        if (!fileNameSplitBySlash[fileNameSplitBySlash.length - 1].contains("Duplicate")) {
             newFileName =
-                    fileNameSplitByPoint[0] + "__Duplicate-1"  +
+                    fileNameSplitByPoint[0] + "__Duplicate-1" +
                             "." + fileNameSplitByPoint[1];
-        }else {
+        } else {
             String[] splitByDuplicate = fileNameSplitByPoint[0].split("__Duplicate-");
             int countOfDuplicate = Integer.parseInt(splitByDuplicate[1]);
-            newFileName = splitByDuplicate[0]  + "__Duplicate-"  + ++countOfDuplicate +
+            newFileName = splitByDuplicate[0] + "__Duplicate-" + ++countOfDuplicate +
                     "." + fileNameSplitByPoint[1];
         }
         return newFileName;

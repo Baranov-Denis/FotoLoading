@@ -6,7 +6,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 
-import javax.swing.*;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,7 +17,7 @@ public class Model {
     private String sourcePath;
     private String destinationPath;
     private boolean operationContinues = true;
-    private ArrayList<InputFile> listOfSourceFilesForCopying = new ArrayList<>();
+    private final ArrayList<InputFile> listOfSourceFilesForCopying = new ArrayList<>();
 
     //--------------------------------------------------- Getters and Setters ---------------------------------
     //---------------------------------------------------------------------------------------------------------
@@ -75,15 +75,6 @@ public class Model {
         for (InputFile file : listOfSourceFilesForCopying) {
             if (operationContinues) {
                 getInfoOfFile(file);
-
-               /* System.out.println("name " + file.getName());
-                System.out.println("tyoe " + file.getType());
-                System.out.println("time " + file.getTime());
-                System.out.println("day " + file.getDay());
-                System.out.println("month " + file.getMonth());
-                System.out.println("year " + file.getYear());
-                System.out.println(file.getDestinationPathWithFileName());*/
-
                 copyingFile(file);
             }
         }
@@ -128,15 +119,10 @@ public class Model {
         }
     }
 
-  /*  private String createNewDestinationPathWithoutFileName(String[] fileInfo) {
-        return destinationPath + "\\" + fileInfo[0] + "\\" + fileInfo[3] + "\\" + fileInfo[3] + " " + fileInfo[2] +
-                " " + fileInfo[1] +
-                "\\";
-    }*/
-
 
     private void checkingForFilesWithDuplicateNames(InputFile file, String destinationPath) {
 
+        System.out.println();
         if (Files.exists(Paths.get(destinationPath))) {
 
            // File f = new File(destinationPath);
@@ -149,15 +135,7 @@ public class Model {
                 destinationPath = createNewNameForRepeatingFile(destinationPath);
                 checkingForFilesWithDuplicateNames(file, destinationPath);
             }
-/*
-            int inp = JOptionPane.showConfirmDialog(new JPanel(),
-                    "Do you want to change name this file : \n" + destinationPath + "?");
-            if (inp == 0) {
-                destinationPath = createNewNameForRepeatingFile(destinationPath);
-                checkingForFilesWithDuplicateNames(file, destinationPath);
-            } else if (inp == 2) {
-                operationContinues = false;
-            }*/
+
         } else {
             System.out.println(file.getName());
             writeFileToDestination(file.getFile(), destinationPath);
@@ -171,11 +149,7 @@ public class Model {
             System.out.println("Writing file failed!");
         }
     }
-/*
-    private String getFinalDestinationPath(File file, String destinationPath) {
-        return destinationPath + file.getName();
-    }
-*/
+
 
     private String createNewNameForRepeatingFile(String destinationPath) {
         String[] fileNameSplitByPoint = destinationPath.split("\\.");

@@ -4,48 +4,21 @@ import java.io.File;
 import java.util.Objects;
 
 public class InputFile {
-    private File file;
-    private String date;
+    private final File file;
     private String name;
     private String year;
     private String month;
     private String day;
     private String time;
     private String type;
-    private String destinationPath;
-    private String destinationPathWithoutFileName;
-    private String destinationPathWithFileName;
-
-    public String getDestinationPath() {
-        return destinationPath;
-    }
-
-    public void setDestinationPath(String destinationPath) {
-        this.destinationPath = destinationPath;
-    }
+    private final String destinationPath;
 
     public String getDestinationPathWithFileName() {
         return createNewDestinationPathWithFileName();
     }
 
-    public void setDestinationPathWithFileName(String destinationPathWithFileName) {
-        this.destinationPathWithFileName = destinationPathWithFileName;
-    }
-
     public String getDestinationPathWithoutFileName() {
         return createNewDestinationPathWithoutFileName();
-    }
-
-    public void setDestinationPathWithoutFileName(String destinationPathWithoutFileName) {
-        this.destinationPathWithoutFileName = destinationPathWithoutFileName;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
     }
 
     public InputFile(File file, String destinationPath) {
@@ -57,13 +30,6 @@ public class InputFile {
         return file;
     }
 
-    public void setFile(File file) {
-        this.file = file;
-    }
-
-    public InputFile() {
-    }
-
     public String getName() {
         return name;
     }
@@ -72,41 +38,26 @@ public class InputFile {
         this.name = name;
     }
 
-    public String getYear() {
-        return year;
-    }
 
     public void setYear(String year) {
         this.year = year;
     }
 
-    public String getMonth() {
-        return month;
-    }
 
     public void setMonth(String month) {
         this.month = replaceMonthName(month);
     }
 
-    public String getDay() {
-        return day;
-    }
 
     public void setDay(String day) {
         this.day = day;
     }
 
-    public String getTime() {
-        return time;
-    }
 
     public void setTime(String time) {
         this.time = time;
     }
 
-    public String getType() {
-        return type;
-    }
 
     public void setType(String type) {
         this.type = type;

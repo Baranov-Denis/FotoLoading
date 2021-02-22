@@ -3,9 +3,12 @@ package Controller;
 import Model.Model;
 import Viewer.Viewer;
 
-public class Controller {
+import javax.swing.*;
+
+public class Controller extends SwingWorker<Integer, Integer> {
     private final Model model;
     private Viewer viewer;
+
 
 
     public Controller(Model model) {
@@ -21,17 +24,34 @@ public class Controller {
         viewer.setSourcePath(model.getSourcePath());
         viewer.setDestinationPath(model.getDestinationPath());
         viewer.runMainPage();
+
     }
 
 
 
-
+//--------------------------------------------------------------------------------------------------
     public void runExecuteCopyPhoto() {
-        model.startCopyingFilesProcess();
         model.setOperationContinues(true);
-        viewer.runMainPage();
-    }
+        viewer.setLoading(true);
 
+            Thread a =  new Thread(model);
+            a.start();
+            //Thread b = new Thread(new p(viewer, model));
+          //  b.start();
+
+       //Thread c = new Thread(viewer);
+      // c.start();
+
+//updateProgressBar();
+             execute();
+            //viewer.runMainPage();
+
+
+
+
+
+    }
+//-------------------------------------------------------------------------------------------------
     public void setSourcePath(String sourcePath,String destination) {
         model.setSourcePath(sourcePath);
         model.setDestinationPath(destination);
@@ -39,6 +59,42 @@ public class Controller {
         model.readSettings();
         viewer.setSourcePath(model.getSourcePath());
         viewer.setDestinationPath(model.getDestinationPath());
+
         viewer.runMainPage();
+    }
+
+    @Override
+    protected void done() {
+
+
+    }
+
+    private void updateProgressBar(){
+viewer.setLoading(true);
+try{
+    while(viewer.isLoading()) {
+        if(model.getProcessOfDone() == 100) viewer.setLoading(false);
+        System.out.println("------------" + model.getProcessOfDone() + "  " + viewer.isLoading());
+       viewer.setProgressBarValue(model.getProcessOfDone());
+        Thread.sleep(10);
+        viewer.runMainPage();
+
+    }
+}catch (Exception t){
+
+}
+    }
+
+    @Override
+    protected Integer doInBackground() throws Exception {
+updateProgressBar();
+        return null;
+    }
+
+    public void chancelProcess() {
+        model.setOperationContinues(false);
+        viewer.setLoading(false);
+
+        SwingUtilities.invokeLater(viewer::runMainPage);
     }
 }

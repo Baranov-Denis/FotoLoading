@@ -13,11 +13,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
-public class Model {
+public class Model implements Runnable {
     private String sourcePath;
     private String destinationPath;
     private boolean operationContinues = true;
     private final ArrayList<InputFile> listOfSourceFilesForCopying = new ArrayList<>();
+    private int numberOfDonePhotos;
+
 
     //--------------------------------------------------- Getters and Setters ---------------------------------
     //---------------------------------------------------------------------------------------------------------
@@ -69,16 +71,26 @@ public class Model {
     //---------------------------------------------- Start Method ------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-    public void startCopyingFilesProcess() {
+   // public void startCopyingFilesProcess() {
+   public void run() {
+        readSettings();
         getListOfRawInputFilesFromSourcePath(sourcePath);
-     //   System.out.println("------------------------------------------" +listOfSourceFilesForCopying.size() );
         for (InputFile file : listOfSourceFilesForCopying) {
             if (operationContinues) {
                 getInfoOfFile(file);
                 copyingFile(file);
+                numberOfDonePhotos++;
             }
         }
     }
+
+    //-------------------------------------- Get Percent of Done -------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------
+
+    public int getProcessOfDone(){
+        return (int) ((numberOfDonePhotos * 100) / listOfSourceFilesForCopying.size());
+    }
+
 
     //------------------------------------- Get List Of Input Files ----------------------------------------------
     //------------------------------------------------------------------------------------------------------------
@@ -110,7 +122,7 @@ public class Model {
 
     private void copyingFile(InputFile file) {
 
-        //  String[] allOfFileInfo = getInfoOfFile(file);
+
         System.out.println("******* "+file.getName());
         if ( !(file.getName() == null)) {
             checkExistingDirectory(file.getDestinationPathWithoutFileName());
@@ -135,7 +147,6 @@ public class Model {
             }
 
         } else {
-            System.out.println("---"+file.getName());
             writeFileToDestination(file.getFile(), destinationPath);
         }
     }

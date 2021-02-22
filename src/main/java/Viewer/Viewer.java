@@ -14,8 +14,25 @@ public class Viewer extends JFrame {
 
     private String sourcePath;
     private String destinationPath;
-
     public String message = "          ";
+    private boolean loading;
+    private int progressBarValue;
+
+    public int getProgressBarValue() {
+        return progressBarValue;
+    }
+
+    public void setProgressBarValue(int progressBarValue) {
+        this.progressBarValue = progressBarValue;
+    }
+
+    public boolean isLoading() {
+        return loading;
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+    }
 
     public void setDestinationPath(String destinationPath) {
         this.destinationPath = destinationPath;
@@ -78,10 +95,21 @@ public class Viewer extends JFrame {
             }
         });
         JLabel messageLabel = new JLabel(message);
+        messageLabel.setPreferredSize(new Dimension(320,20));
 
-        MyButton executeCopyPhoto = new MyButton("Start Copying Photo");
-        executeCopyPhoto.setPreferredSize(new Dimension(320,100));
-        executeCopyPhoto.addActionListener(e -> controller.runExecuteCopyPhoto());
+        MyButton executeCopyPhotoButton = new MyButton("Start Copying Photo");
+        executeCopyPhotoButton.setPreferredSize(new Dimension(320,100));
+        executeCopyPhotoButton.addActionListener(e -> controller.runExecuteCopyPhoto());
+
+        MyButton chancelButton = new MyButton("Chancel");
+        chancelButton.setPreferredSize(new Dimension(320,100));
+        chancelButton.addActionListener(e -> controller.chancelProcess());
+
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(100);
+        progressBar.setStringPainted(true);
+        progressBar.setPreferredSize(new Dimension(320, 20));
 
 
 
@@ -92,8 +120,15 @@ public class Viewer extends JFrame {
         panel.add(changeSourcePath);
         panel.add(textAboveDestinationButton);
         panel.add(changeDestinationPath);
-        panel.add(messageLabel);
-        panel.add(executeCopyPhoto);
+        if(loading){
+            progressBar.setValue(progressBarValue);
+            panel.remove(executeCopyPhotoButton);
+            panel.add(progressBar);
+            panel.add(chancelButton);
+        }else {
+            panel.add(messageLabel);
+            panel.add(executeCopyPhotoButton);
+        }
         
         SwingUtilities.updateComponentTreeUI(frame);
     }

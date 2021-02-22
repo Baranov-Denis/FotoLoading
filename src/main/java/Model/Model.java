@@ -24,6 +24,15 @@ public class Model implements Runnable {
     //--------------------------------------------------- Getters and Setters ---------------------------------
     //---------------------------------------------------------------------------------------------------------
 
+
+    public int getNumberOfDonePhotos() {
+        return numberOfDonePhotos;
+    }
+
+    public void setNumberOfDonePhotos(int numberOfDonePhotos) {
+        this.numberOfDonePhotos = numberOfDonePhotos;
+    }
+
     public void setOperationContinues(boolean operationContinues) {
         this.operationContinues = operationContinues;
     }

@@ -71,7 +71,7 @@ public class Model {
 
     public void startCopyingFilesProcess() {
         getListOfRawInputFilesFromSourcePath(sourcePath);
-        System.out.println("------------------------------------------" +listOfSourceFilesForCopying.size() );
+     //   System.out.println("------------------------------------------" +listOfSourceFilesForCopying.size() );
         for (InputFile file : listOfSourceFilesForCopying) {
             if (operationContinues) {
                 getInfoOfFile(file);
@@ -111,8 +111,8 @@ public class Model {
     private void copyingFile(InputFile file) {
 
         //  String[] allOfFileInfo = getInfoOfFile(file);
-
-        if (file != null) {
+        System.out.println("******* "+file.getName());
+        if ( !(file.getName() == null)) {
             checkExistingDirectory(file.getDestinationPathWithoutFileName());
             checkingForFilesWithDuplicateNames(file, file.getDestinationPathWithFileName());
 
@@ -122,11 +122,9 @@ public class Model {
 
     private void checkingForFilesWithDuplicateNames(InputFile file, String destinationPath) {
 
-        System.out.println();
+
         if (Files.exists(Paths.get(destinationPath))) {
 
-           // File f = new File(destinationPath);
-            System.out.println("------------------------------------------" +file.getDestinationPathWithFileName() );
             InputFile existFile = new InputFile(new File(destinationPath) , destinationPath);
             getInfoOfFile(existFile);
 
@@ -137,7 +135,7 @@ public class Model {
             }
 
         } else {
-            System.out.println(file.getName());
+            System.out.println("---"+file.getName());
             writeFileToDestination(file.getFile(), destinationPath);
         }
     }
@@ -168,6 +166,7 @@ public class Model {
         return newFileName;
     }
 
+
     private void checkExistingDirectory(String destination) {
         File newFile = new File(destination);
         if (!newFile.exists()) {
@@ -189,7 +188,11 @@ public class Model {
 
                 for (Tag tag : directory.getTags()) {
 
-                    if (tag.toString().contains("[File] File Name") && tag.toString().length() != 2) {
+                    if (tag.toString().contains("[File] File Name")) {
+                        String[] testName = tag.toString().split("\\.");
+                        if (testName.length != 2 || testName[1].equals("null")) {
+                            break;
+                        }
                         file.setName(tag.toString().substring(18).trim());
                     }
 
@@ -208,7 +211,7 @@ public class Model {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Exception in getInfoOfFile(File file) method");
+           // System.out.println("Exception in getInfoOfFile(File file) method");
         }
     }
 

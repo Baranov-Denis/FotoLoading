@@ -34,17 +34,17 @@ public class Controller extends SwingWorker<Integer, Integer> {
         model.setOperationContinues(true);
         viewer.setLoading(true);
 
-            Thread a =  new Thread(model);
-            a.start();
+            Thread modelThread =  new Thread(model);
+            modelThread.start();
             //Thread b = new Thread(new p(viewer, model));
-          //  b.start();
-
+           // b.start();
+     //   new p(viewer, model).run();
        //Thread c = new Thread(viewer);
       // c.start();
 
 //updateProgressBar();
              execute();
-            //viewer.runMainPage();
+          //  viewer.runMainPage();
 
 
 
@@ -74,10 +74,11 @@ viewer.setLoading(true);
 try{
     while(viewer.isLoading()) {
         if(model.getProcessOfDone() == 100) viewer.setLoading(false);
-        System.out.println("------------" + model.getProcessOfDone() + "  " + viewer.isLoading());
+
        viewer.setProgressBarValue(model.getProcessOfDone());
         Thread.sleep(10);
-        viewer.runMainPage();
+        SwingUtilities.invokeLater(viewer::runMainPage);
+      //  viewer.runMainPage();
 
     }
 }catch (Exception t){

@@ -49,7 +49,7 @@ public class Viewer extends JFrame {
     public void runMainPage(){
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(344, 310);
+        frame.setSize(346, 335);
         frame.setTitle("PhotoLoader");
         frame.setLocation(1300, 300);
         frame.setLayout(new FlowLayout());
@@ -95,7 +95,7 @@ public class Viewer extends JFrame {
             }
         });
         JLabel messageLabel = new JLabel(message);
-        messageLabel.setPreferredSize(new Dimension(320,20));
+        messageLabel.setPreferredSize(new Dimension(320,41));
 
         MyButton executeCopyPhotoButton = new MyButton("Start Copying Photo");
         executeCopyPhotoButton.setPreferredSize(new Dimension(320,100));
@@ -109,7 +109,7 @@ public class Viewer extends JFrame {
         progressBar.setMinimum(0);
         progressBar.setMaximum(100);
         progressBar.setStringPainted(true);
-        progressBar.setPreferredSize(new Dimension(320, 20));
+        progressBar.setPreferredSize(new Dimension(320, 41));
 
 
 

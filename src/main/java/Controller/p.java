@@ -20,11 +20,15 @@ public class p implements Runnable{
           //  System.out.println("==============================================================================" +
             //  viewer.isLoading());
             while(viewer.isLoading()) {
+                viewer.setLoading(true);
+                if(model.getProcessOfDone() >= 100) viewer.setLoading(false);
+
+                viewer.runMainPage();
                 System.out.println("==============================================================================" + viewer.isLoading());
                 System.out.println("------------" + model.getProcessOfDone() + "    " + viewer.isLoading());
                 viewer.setProgressBarValue(model.getProcessOfDone());
                 Thread.sleep(100);
-                viewer.runMainPage();
+
 
             }
         }catch (Exception t){

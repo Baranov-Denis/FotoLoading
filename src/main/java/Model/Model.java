@@ -87,12 +87,8 @@ public class Model implements Runnable {
                     System.out.println(file.getDestinationPathWithFileName());
                     copyingFile(file);
                     numberOfDonePhotos++;
-                } else {
-
                 }
             }
-        } else {
-
         }
     }
 

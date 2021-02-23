@@ -3,7 +3,6 @@ package Viewer;
 import Controller.Controller;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.io.File;
 
@@ -19,9 +18,6 @@ public class Viewer extends JFrame {
     private boolean loading;
     private int progressBarValue;
 
-    public int getProgressBarValue() {
-        return progressBarValue;
-    }
 
     public void setProgressBarValue(int progressBarValue) {
         this.progressBarValue = progressBarValue;
@@ -45,6 +41,15 @@ public class Viewer extends JFrame {
 
     public Viewer(Controller controller) {
         this.controller = controller;
+        setFrameLocation();
+    }
+
+    private void setFrameLocation(){
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Dimension screenSize = kit.getScreenSize();
+        int screenHeight = screenSize.height;
+        int screenWidth = screenSize.width;
+        frame.setLocation((screenWidth/2)-(340/2), (screenHeight/2)-(293));
     }
 
     public void runMainPage(){
@@ -52,13 +57,15 @@ public class Viewer extends JFrame {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(346, 335);
         frame.setTitle("PhotoLoader");
-        frame.setLocation(1300, 300);
+
         frame.setLayout(new FlowLayout());
         frame.setAlwaysOnTop(true);
         frame.add(panel);
-        panel.setPreferredSize(new Dimension(340, 585));
+
+        panel.setPreferredSize(new Dimension(340, 586));
         panel.setBackground(MyColors.BACKGROUND);
         panel.removeAll();
+
 
 
         JLabel textAboveSourceButton = new JLabel("Choose source path:");
@@ -95,6 +102,7 @@ public class Viewer extends JFrame {
                 controller.setSourcePath(sourcePath,newDestinationPath);
             }
         });
+
         JLabel messageLabel = new JLabel(message);
         messageLabel.setPreferredSize(new Dimension(320,41));
 
@@ -114,14 +122,7 @@ public class Viewer extends JFrame {
         progressBar.setBackground(MyColors.BACKGROUND);
         progressBar.setForeground(MyColors.BUTTON_COLOR);
         progressBar.setBorderPainted(false);
-
         progressBar.setFont(new Font("San-Serif" ,Font.BOLD,20));
-      //  progressBar.setBorder(new BevelBorder(BevelBorder.RAISED));
-
-
-
-
-
 
         panel.add(textAboveSourceButton);
         panel.add(changeSourcePath);

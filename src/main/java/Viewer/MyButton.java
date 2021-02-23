@@ -19,6 +19,7 @@ public class MyButton extends JButton {
         this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         this.setFocusPainted(false);
         this.setFont(new Font("San-Serif" ,Font.BOLD,20));
+
     }
 
     @Override
@@ -37,6 +38,5 @@ public class MyButton extends JButton {
     @Override
     public void setContentAreaFilled(boolean b) {
     }
-
 
 }

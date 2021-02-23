@@ -5,7 +5,7 @@ import Viewer.Viewer;
 
 import javax.swing.*;
 
-public class Controller extends SwingWorker<Void, Void> {
+public class Controller {
     private final Model model;
     private Viewer viewer;
 
@@ -22,49 +22,43 @@ public class Controller extends SwingWorker<Void, Void> {
         model.readSettings();
         viewer.setSourcePath(model.getSourcePath());
         viewer.setDestinationPath(model.getDestinationPath());
-        viewer.runMainPage();
+        SwingUtilities.invokeLater(viewer::runMainPage);
+//        viewer.runMainPage();
 
     }
 
-
+    //------------------------------------------- Run App ----------------------------------------------
     //--------------------------------------------------------------------------------------------------
+
     public void runExecuteCopyPhoto() {
+
         model.setOperationContinues(true);
         viewer.setLoading(true);
 
         Thread modelThread = new Thread(model);
         modelThread.start();
 
-        try{
-            Thread.sleep(1);
-        }catch (Exception e){}
+        sleepThread(10);
 
 
         new SwingWorker<Void, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
-                System.out.println(" --------------------------------------------------------  - " + model.getProcessOfDone());
-
-                // Simulate doing something useful.
-                viewer.setLoading(true);
-                viewer.runMainPage();
-
+            protected Void doInBackground() {
                 updateProgressBar();
-
                 return null;
             }
-            protected void done(){
-              model.setNumberOfDonePhotos(0);
+
+            protected void done() {
+                model.setNumberOfDonePhotos(0);
             }
         }.execute();
-
-
-        //  viewer.runMainPage();
-
 
     }
 
     //-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
+
+
     public void setSourcePath(String sourcePath, String destination) {
         model.setSourcePath(sourcePath);
         model.setDestinationPath(destination);
@@ -72,46 +66,32 @@ public class Controller extends SwingWorker<Void, Void> {
         model.readSettings();
         viewer.setSourcePath(model.getSourcePath());
         viewer.setDestinationPath(model.getDestinationPath());
-
-        viewer.runMainPage();
+        SwingUtilities.invokeLater(viewer::runMainPage);
     }
 
-    @Override
-    protected void done() {
-
-
-    }
 
     private void updateProgressBar() {
-        viewer.setLoading(true);
-        viewer.runMainPage();
-
-        try {
-
             while (viewer.isLoading()) {
                 if (model.getProcessOfDone() == 100) viewer.setLoading(false);
-
                 viewer.setProgressBarValue(model.getProcessOfDone());
-
-                viewer.runMainPage();
-                Thread.sleep(500);
+                SwingUtilities.invokeLater(viewer::runMainPage);
+                sleepThread(500);
             }
-            model.setNumberOfDonePhotos(0);
-        } catch (Exception t) {
+    }
 
+
+    private void sleepThread(int millis){
+        try{
+            Thread.sleep(millis);
+        }catch (Exception e){
+            System.out.println("Error while Thread sleep");
         }
     }
 
-    @Override
-    protected Void doInBackground() throws Exception {
-        updateProgressBar();
-        return null;
-    }
 
     public void chancelProcess() {
         model.setOperationContinues(false);
         viewer.setLoading(false);
-
         SwingUtilities.invokeLater(viewer::runMainPage);
     }
 }

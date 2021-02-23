@@ -18,7 +18,7 @@ public class Model implements Runnable {
     private String destinationPath;
     private boolean operationContinues = true;
     private int numberOfDonePhotos;
-
+    private long inputFilesLength;
 
 
     //--------------------------------------------------- Getters and Setters ---------------------------------
@@ -78,17 +78,21 @@ public class Model implements Runnable {
 
 
     public void run() {
+        getListOfRawInputFilesFromSourcePath(sourcePath);
         if (thereIsEnoughFreeSpaceForCopying()) {
-            getListOfRawInputFilesFromSourcePath(sourcePath);
+
             for (InputFile file : listOfSourceFilesForCopying) {
                 if (operationContinues) {
                     getInfoOfFile(file);
+                    System.out.println(file.getDestinationPathWithFileName());
                     copyingFile(file);
                     numberOfDonePhotos++;
-                }else{
+                } else {
 
                 }
             }
+        } else {
+
         }
     }
 
@@ -101,11 +105,9 @@ public class Model implements Runnable {
 
 
     private boolean thereIsEnoughFreeSpaceForCopying() {
-        File inputSizeSize = new File(sourcePath);
-        File destSize = new File(destinationPath);
-        long destinationSize = destSize.getFreeSpace();
-        long inputFilesSize = inputSizeSize.getTotalSpace() - inputSizeSize.getFreeSpace();
-        return destinationSize - inputFilesSize > 0;
+        File destFolder = new File(destinationPath);
+        long destinationFreeSize = destFolder.getFreeSpace();
+        return destinationFreeSize > inputFilesLength;
     }
 
 
@@ -123,6 +125,7 @@ public class Model implements Runnable {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
                 } else {
                     listOfSourceFilesForCopying.add(new InputFile(rawInputFile, destinationPath));
+                    inputFilesLength += rawInputFile.length();
                 }
             }
         }

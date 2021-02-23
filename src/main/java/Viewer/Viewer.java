@@ -108,6 +108,7 @@ public class Viewer extends JFrame {
 
         JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
         messageLabel.setPreferredSize(new Dimension(320,41));
+        messageLabel.setBackground(MyColors.FONT);
 
 
         MyButton executeCopyPhotoButton = new MyButton("Start Copying Photo");
@@ -123,7 +124,7 @@ public class Viewer extends JFrame {
         progressBar.setMaximum(100);
         progressBar.setStringPainted(true);
         progressBar.setPreferredSize(new Dimension(320, 41));
-        progressBar.setBackground(MyColors.BACKGROUND);
+        progressBar.setBackground(MyColors.FONT);
         progressBar.setForeground(MyColors.BUTTON_COLOR);
         progressBar.setBorderPainted(false);
         progressBar.setFont(new Font("San-Serif" ,Font.BOLD,20));

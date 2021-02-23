@@ -12,6 +12,7 @@ public class Start {
         mainController.addViewer(appViewer);
 
 
-        SwingUtilities.invokeLater(mainController::runApp);
+        mainController.runApp();
+        //SwingUtilities.invokeLater(mainController::runApp);
     }
 }

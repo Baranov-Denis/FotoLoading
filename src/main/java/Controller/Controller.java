@@ -38,6 +38,9 @@ public class Controller {
         Thread modelThread = new Thread(model);
         modelThread.start();
 
+      //  model.run();
+
+
         sleepThread(10);
 
 

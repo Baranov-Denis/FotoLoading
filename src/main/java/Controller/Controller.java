@@ -49,7 +49,10 @@ public class Controller {
             }
 
             protected void done() {
+
                 model.setNumberOfDonePhotos(0);
+                viewer.setLoading(false);
+               SwingUtilities.invokeLater(viewer::runMainPage);
             }
         }.execute();
 
@@ -93,5 +96,6 @@ public class Controller {
         model.setOperationContinues(false);
         viewer.setLoading(false);
         SwingUtilities.invokeLater(viewer::runMainPage);
+
     }
 }

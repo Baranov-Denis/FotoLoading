@@ -6,7 +6,6 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,10 +13,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 public class Model implements Runnable {
+    private final ArrayList<InputFile> listOfSourceFilesForCopying = new ArrayList<>();
     private String sourcePath;
     private String destinationPath;
     private boolean operationContinues = true;
-    private final ArrayList<InputFile> listOfSourceFilesForCopying = new ArrayList<>();
     private int numberOfDonePhotos;
 
 
@@ -25,10 +24,6 @@ public class Model implements Runnable {
     //--------------------------------------------------- Getters and Setters ---------------------------------
     //---------------------------------------------------------------------------------------------------------
 
-
-    public int getNumberOfDonePhotos() {
-        return numberOfDonePhotos;
-    }
 
     public void setNumberOfDonePhotos(int numberOfDonePhotos) {
         this.numberOfDonePhotos = numberOfDonePhotos;
@@ -81,26 +76,36 @@ public class Model implements Runnable {
     //---------------------------------------------- Start Method ------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-   // public void startCopyingFilesProcess() {
-   public void run() {
-       // readSettings();
-        getListOfRawInputFilesFromSourcePath(sourcePath);
-        for (InputFile file : listOfSourceFilesForCopying) {
-            if (operationContinues) {
-                getInfoOfFile(file);
-                copyingFile(file);
-                numberOfDonePhotos++;
+
+    public void run() {
+        if (thereIsEnoughFreeSpaceForCopying()) {
+            getListOfRawInputFilesFromSourcePath(sourcePath);
+            for (InputFile file : listOfSourceFilesForCopying) {
+                if (operationContinues) {
+                    getInfoOfFile(file);
+                    copyingFile(file);
+                    numberOfDonePhotos++;
+                }else{
+
+                }
             }
         }
-
-
     }
 
     //-------------------------------------- Get Percent of Done -------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-    public int getProcessOfDone(){
-        return (int) ((numberOfDonePhotos * 100) / listOfSourceFilesForCopying.size());
+    public int getProcessOfDone() {
+        return ((numberOfDonePhotos * 100) / listOfSourceFilesForCopying.size());
+    }
+
+
+    private boolean thereIsEnoughFreeSpaceForCopying() {
+        File inputSizeSize = new File(sourcePath);
+        File destSize = new File(destinationPath);
+        long destinationSize = destSize.getFreeSpace();
+        long inputFilesSize = inputSizeSize.getTotalSpace() - inputSizeSize.getFreeSpace();
+        return destinationSize - inputFilesSize > 0;
     }
 
 
@@ -135,8 +140,8 @@ public class Model implements Runnable {
     private void copyingFile(InputFile file) {
 
 
-        System.out.println("******* "+file.getName());
-        if ( !(file.getName() == null)) {
+        //  System.out.println("******* "+file.getName());
+        if (!(file.getName() == null)) {
             checkExistingDirectory(file.getDestinationPathWithoutFileName());
             checkingForFilesWithDuplicateNames(file, file.getDestinationPathWithFileName());
 
@@ -149,10 +154,10 @@ public class Model implements Runnable {
 
         if (Files.exists(Paths.get(destinationPath))) {
 
-            InputFile existFile = new InputFile(new File(destinationPath) , destinationPath);
+            InputFile existFile = new InputFile(new File(destinationPath), destinationPath);
             getInfoOfFile(existFile);
 
-            if(!existFile.equals(file)){
+            if (!existFile.equals(file)) {
 
                 destinationPath = createNewNameForRepeatingFile(destinationPath);
                 checkingForFilesWithDuplicateNames(file, destinationPath);
@@ -234,7 +239,7 @@ public class Model implements Runnable {
                 }
             }
         } catch (Exception e) {
-           // System.out.println("Exception in getInfoOfFile(File file) method");
+            // System.out.println("Exception in getInfoOfFile(File file) method");
         }
     }
 

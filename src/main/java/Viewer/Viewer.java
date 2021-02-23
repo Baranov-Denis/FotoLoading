@@ -18,6 +18,9 @@ public class Viewer extends JFrame {
     private boolean loading;
     private int progressBarValue;
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public void setProgressBarValue(int progressBarValue) {
         this.progressBarValue = progressBarValue;
@@ -103,8 +106,9 @@ public class Viewer extends JFrame {
             }
         });
 
-        JLabel messageLabel = new JLabel(message);
+        JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
         messageLabel.setPreferredSize(new Dimension(320,41));
+
 
         MyButton executeCopyPhotoButton = new MyButton("Start Copying Photo");
         executeCopyPhotoButton.setPreferredSize(new Dimension(320,100));

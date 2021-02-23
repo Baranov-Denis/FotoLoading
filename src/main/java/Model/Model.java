@@ -21,6 +21,7 @@ public class Model implements Runnable {
     private int numberOfDonePhotos;
 
 
+
     //--------------------------------------------------- Getters and Setters ---------------------------------
     //---------------------------------------------------------------------------------------------------------
 
@@ -82,7 +83,7 @@ public class Model implements Runnable {
 
    // public void startCopyingFilesProcess() {
    public void run() {
-        readSettings();
+       // readSettings();
         getListOfRawInputFilesFromSourcePath(sourcePath);
         for (InputFile file : listOfSourceFilesForCopying) {
             if (operationContinues) {
@@ -91,6 +92,8 @@ public class Model implements Runnable {
                 numberOfDonePhotos++;
             }
         }
+
+
     }
 
     //-------------------------------------- Get Percent of Done -------------------------------------------------

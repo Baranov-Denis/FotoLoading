@@ -18,6 +18,7 @@ public class MyButton extends JButton {
         this.setForeground(MyColors.FONT);
         this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         this.setFocusPainted(false);
+        this.setFont(new Font("San-Serif" ,Font.BOLD,20));
     }
 
     @Override

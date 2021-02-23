@@ -34,20 +34,21 @@ public class Controller extends SwingWorker<Void, Void> {
 
         Thread modelThread = new Thread(model);
         modelThread.start();
-        //Thread b = new Thread(new p(viewer, model));
-        // b.start();
-        //   new p(viewer, model).run();
-        //Thread c = new Thread(viewer);
-        // c.start();
 
-//updateProgressBar();
-        // execute();
+        try{
+            Thread.sleep(1);
+        }catch (Exception e){}
+
+
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
                 System.out.println(" --------------------------------------------------------  - " + model.getProcessOfDone());
+
                 // Simulate doing something useful.
                 viewer.setLoading(true);
+                viewer.runMainPage();
+
                 updateProgressBar();
 
                 return null;
@@ -56,6 +57,7 @@ public class Controller extends SwingWorker<Void, Void> {
               model.setNumberOfDonePhotos(0);
             }
         }.execute();
+
 
         //  viewer.runMainPage();
 
@@ -82,16 +84,19 @@ public class Controller extends SwingWorker<Void, Void> {
 
     private void updateProgressBar() {
         viewer.setLoading(true);
+        viewer.runMainPage();
+
         try {
+
             while (viewer.isLoading()) {
                 if (model.getProcessOfDone() == 100) viewer.setLoading(false);
 
                 viewer.setProgressBarValue(model.getProcessOfDone());
-                Thread.sleep(10);
-                // SwingUtilities.invokeLater(viewer::runMainPage);
-                viewer.runMainPage();
 
+                viewer.runMainPage();
+                Thread.sleep(500);
             }
+            model.setNumberOfDonePhotos(0);
         } catch (Exception t) {
 
         }

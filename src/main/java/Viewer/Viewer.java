@@ -3,6 +3,7 @@ package Viewer;
 import Controller.Controller;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.io.File;
 
@@ -110,6 +111,12 @@ public class Viewer extends JFrame {
         progressBar.setMaximum(100);
         progressBar.setStringPainted(true);
         progressBar.setPreferredSize(new Dimension(320, 41));
+        progressBar.setBackground(MyColors.BACKGROUND);
+        progressBar.setForeground(MyColors.BUTTON_COLOR);
+        progressBar.setBorderPainted(false);
+
+        progressBar.setFont(new Font("San-Serif" ,Font.BOLD,20));
+      //  progressBar.setBorder(new BevelBorder(BevelBorder.RAISED));
 
 
 

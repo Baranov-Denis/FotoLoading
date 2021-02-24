@@ -14,12 +14,16 @@ public class Viewer extends JFrame {
 
     private String sourcePath;
     private String destinationPath;
-    public String message = "          ";
+    public String message = "Ready";
     private boolean loading;
     private int progressBarValue;
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public void setProgressBarValue(int progressBarValue) {
@@ -56,6 +60,7 @@ public class Viewer extends JFrame {
     }
 
     public void runMainPage(){
+
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(346, 335);
@@ -109,6 +114,7 @@ public class Viewer extends JFrame {
         JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
         messageLabel.setPreferredSize(new Dimension(320,41));
         messageLabel.setBackground(MyColors.FONT);
+        messageLabel.setFont(new Font("San-Serif" ,Font.BOLD,20));
 
 
         MyButton executeCopyPhotoButton = new MyButton("Start Copying Photo");

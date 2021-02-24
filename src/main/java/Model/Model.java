@@ -13,17 +13,35 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 public class Model implements Runnable {
-    private final ArrayList<InputFile> listOfSourceFilesForCopying = new ArrayList<>();
+    private ArrayList<InputFile> listOfSourceFilesForCopying;
     private String sourcePath;
     private String destinationPath;
     private boolean operationContinues = true;
     private int numberOfDonePhotos;
     private long inputFilesLength;
+    private String message;
+    private int percentOfDone;
 
 
     //--------------------------------------------------- Getters and Setters ---------------------------------
     //---------------------------------------------------------------------------------------------------------
 
+
+    public int getPercentOfDone() {
+        return percentOfDone;
+    }
+
+    public void setPercentOfDone(int percentOfDone) {
+        this.percentOfDone = percentOfDone;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public void setNumberOfDonePhotos(int numberOfDonePhotos) {
         this.numberOfDonePhotos = numberOfDonePhotos;
@@ -78,25 +96,35 @@ public class Model implements Runnable {
 
 
     public void run() {
+        setPercentOfDone(0);
+        listOfSourceFilesForCopying = new ArrayList<>();
         getListOfRawInputFilesFromSourcePath(sourcePath);
+        System.out.println(
+                "--------------------------------------------------------------------------------------list is done");
         if (thereIsEnoughFreeSpaceForCopying()) {
-
             for (InputFile file : listOfSourceFilesForCopying) {
                 if (operationContinues) {
                     getInfoOfFile(file);
                     System.out.println(file.getDestinationPathWithFileName());
                     copyingFile(file);
+                    getProcessOfDone();
                     numberOfDonePhotos++;
                 }
             }
+        } else {
+            setPercentOfDone(100);
+            setMessage("Space is not Enough");
+            return;
         }
+        setPercentOfDone(100);
+        setMessage("All Photo were copy");
     }
 
     //-------------------------------------- Get Percent of Done -------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-    public int getProcessOfDone() {
-        return ((numberOfDonePhotos * 100) / listOfSourceFilesForCopying.size());
+    public void getProcessOfDone() {
+        setPercentOfDone((numberOfDonePhotos * 100) / listOfSourceFilesForCopying.size());
     }
 
 
@@ -112,8 +140,9 @@ public class Model implements Runnable {
 
 
     private void getListOfRawInputFilesFromSourcePath(String sourcePath) {
-
+        System.out.println(sourcePath);
         File[] listOfRawInputFiles = getListOfInputFiles(sourcePath);
+
 
         if (listOfRawInputFiles.length != 0) {
             for (File rawInputFile : listOfRawInputFiles) {
@@ -121,7 +150,8 @@ public class Model implements Runnable {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
                 } else {
                     listOfSourceFilesForCopying.add(new InputFile(rawInputFile, destinationPath));
-                    inputFilesLength += rawInputFile.length();
+                        inputFilesLength += rawInputFile.length();
+
                 }
             }
         }

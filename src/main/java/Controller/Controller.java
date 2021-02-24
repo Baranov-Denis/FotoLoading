@@ -23,8 +23,6 @@ public class Controller {
         viewer.setSourcePath(model.getSourcePath());
         viewer.setDestinationPath(model.getDestinationPath());
         SwingUtilities.invokeLater(viewer::runMainPage);
-//        viewer.runMainPage();
-
     }
 
     //------------------------------------------- Run App ----------------------------------------------
@@ -34,14 +32,14 @@ public class Controller {
 
         model.setOperationContinues(true);
         viewer.setLoading(true);
+        viewer.setMessage("");
 
         Thread modelThread = new Thread(model);
         modelThread.start();
-
-      //  model.run();
-
-
-        sleepThread(10);
+       try {
+            Thread.sleep(10);
+        } catch (Exception empty) {
+        }
 
 
         new SwingWorker<Void, Void>() {
@@ -55,7 +53,10 @@ public class Controller {
 
                 model.setNumberOfDonePhotos(0);
                 viewer.setLoading(false);
-               SwingUtilities.invokeLater(viewer::runMainPage);
+                viewer.setMessage(model.getMessage());
+
+                SwingUtilities.invokeLater(viewer::runMainPage);
+
             }
         }.execute();
 
@@ -77,19 +78,19 @@ public class Controller {
 
 
     private void updateProgressBar() {
-            while (viewer.isLoading()) {
-                if (model.getProcessOfDone() == 100) viewer.setLoading(false);
-                viewer.setProgressBarValue(model.getProcessOfDone());
-                SwingUtilities.invokeLater(viewer::runMainPage);
-                sleepThread(500);
-            }
+        while (viewer.isLoading()) {
+            if (model.getPercentOfDone() == 100) viewer.setLoading(false);
+            viewer.setProgressBarValue(model.getPercentOfDone());
+            SwingUtilities.invokeLater(viewer::runMainPage);
+            sleepThread(500);
+        }
     }
 
 
-    private void sleepThread(int millis){
-        try{
+    private void sleepThread(int millis) {
+        try {
             Thread.sleep(millis);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Error while Thread sleep");
         }
     }

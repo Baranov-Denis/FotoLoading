@@ -18,10 +18,11 @@ public class Controller {
         this.viewer = viewer;
     }
 
+
     public void runApp() {
         model.readSettings();
-        viewer.setSourcePath(model.getSourcePath());
-        viewer.setDestinationPath(model.getDestinationPath());
+        viewer.setSourcePath(model.getSourcePathName());
+        viewer.setDestinationPath(model.getDestinationPathName());
         SwingUtilities.invokeLater(viewer::runMainPage);
     }
 
@@ -30,7 +31,7 @@ public class Controller {
 
     public void runExecuteCopyPhoto() {
 
-        model.setOperationContinues(true);
+        model.setCopyingContinues(true);
         viewer.setLoading(true);
         viewer.setMessage("");
 
@@ -51,9 +52,9 @@ public class Controller {
 
             protected void done() {
 
-                model.setNumberOfDonePhotos(0);
+                model.setNumberOfCopiedFiles(0);
                 viewer.setLoading(false);
-                viewer.setMessage(model.getMessage());
+                viewer.setMessage(model.getMessageToViewer());
 
                 SwingUtilities.invokeLater(viewer::runMainPage);
 
@@ -65,21 +66,25 @@ public class Controller {
     //-------------------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------------------
 
+    private boolean isCopyingDone(){
+       return model.getPercentOfDone() == 100;
+    }
+
 
     public void setSourcePath(String sourcePath, String destination) {
-        model.setSourcePath(sourcePath);
-        model.setDestinationPath(destination);
+        model.setSourcePathName(sourcePath);
+        model.setDestinationPathName(destination);
         model.writeSettings(sourcePath, destination);
         model.readSettings();
-        viewer.setSourcePath(model.getSourcePath());
-        viewer.setDestinationPath(model.getDestinationPath());
+        viewer.setSourcePath(model.getSourcePathName());
+        viewer.setDestinationPath(model.getDestinationPathName());
         SwingUtilities.invokeLater(viewer::runMainPage);
     }
 
 
     private void updateProgressBar() {
         while (viewer.isLoading()) {
-            if (model.getPercentOfDone() == 100) viewer.setLoading(false);
+            if (isCopyingDone()) viewer.setLoading(false);
             viewer.setProgressBarValue(model.getPercentOfDone());
             SwingUtilities.invokeLater(viewer::runMainPage);
             sleepThread(500);
@@ -97,7 +102,7 @@ public class Controller {
 
 
     public void chancelProcess() {
-        model.setOperationContinues(false);
+        model.setCopyingContinues(false);
         viewer.setLoading(false);
         SwingUtilities.invokeLater(viewer::runMainPage);
 

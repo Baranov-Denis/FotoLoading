@@ -13,13 +13,13 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 public class Model implements Runnable {
-    private ArrayList<InputFile> listOfSourceFilesForCopying;
-    private String sourcePath;
-    private String destinationPath;
-    private boolean operationContinues = true;
-    private int numberOfDonePhotos;
-    private long inputFilesLength;
-    private String message;
+    private ArrayList<InputFile> listOfSourceInputFilesForCopying;
+    private String sourcePathName;
+    private String destinationPathName;
+    private boolean copyingContinues = true;
+    private int numberOfCopiedFiles;
+    private long sizeOfSourceFilesForCopy;
+    private String messageToViewer;
     private int percentOfDone;
 
 
@@ -35,50 +35,51 @@ public class Model implements Runnable {
         this.percentOfDone = percentOfDone;
     }
 
-    public String getMessage() {
-        return message;
+    public String getMessageToViewer() {
+        return messageToViewer;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessageToViewer(String messageToViewer) {
+        this.messageToViewer = messageToViewer;
     }
 
-    public void setNumberOfDonePhotos(int numberOfDonePhotos) {
-        this.numberOfDonePhotos = numberOfDonePhotos;
+    public void setNumberOfCopiedFiles(int numberOfCopiedFiles) {
+        this.numberOfCopiedFiles = numberOfCopiedFiles;
     }
 
-    public void setOperationContinues(boolean operationContinues) {
-        this.operationContinues = operationContinues;
+    public void setCopyingContinues(boolean copyingContinues) {
+        this.copyingContinues = copyingContinues;
     }
 
-    public String getSourcePath() {
-        return sourcePath;
+    public String getSourcePathName() {
+        return sourcePathName;
     }
 
-    public void setSourcePath(String sourcePath) {
-        this.sourcePath = sourcePath;
+    public void setSourcePathName(String sourcePathName) {
+        this.sourcePathName = sourcePathName;
     }
 
-    public String getDestinationPath() {
-        return destinationPath;
+    public String getDestinationPathName() {
+        return destinationPathName;
     }
 
-    public void setDestinationPath(String destinationPath) {
-        this.destinationPath = destinationPath;
+    public void setDestinationPathName(String destinationPathName) {
+        this.destinationPathName = destinationPathName;
     }
 
-    //----------------------------------------------- Read and Write Settings ---------------------------------
-    //---------------------------------------------------------------------------------------------------------
+
+    //----------------------------------------------- Read and Write Settings ------------------------------------
+    //------------------------------------------------------------------------------------------------------------
 
     public void readSettings() {
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream("setting.txt"))) {
-            sourcePath = inputStream.readUTF();
-            destinationPath = inputStream.readUTF();
+            sourcePathName = inputStream.readUTF();
+            destinationPathName = inputStream.readUTF();
         } catch (Exception e) {
             System.out.println("Exception in readSetting()");
-            sourcePath = "D:\\";
-            destinationPath = "D:\\";
-            writeSettings(sourcePath, destinationPath);
+            sourcePathName = "D:\\";
+            destinationPathName = "D:\\";
+            writeSettings(sourcePathName, destinationPathName);
         }
     }
 
@@ -91,79 +92,140 @@ public class Model implements Runnable {
         }
     }
 
+
     //---------------------------------------------- Start Method ------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
 
     public void run() {
-        setPercentOfDone(0);
-        listOfSourceFilesForCopying = new ArrayList<>();
-        getListOfRawInputFilesFromSourcePath(sourcePath);
-        System.out.println(
-                "--------------------------------------------------------------------------------------list is done");
+
+        setPercentOfDone(0); //set percent of done = 0 for progress bar = 0%
+
+        listOfSourceInputFilesForCopying = new ArrayList<>(); //Create it here. Because other case in next copying
+        // new files will be added to this list and all of them will be processed again.
+
+        getListOfRawInputFilesFromSourcePath(sourcePathName);//We get input files. They have only destination Path
+        // Name. No other information.
+
         if (thereIsEnoughFreeSpaceForCopying()) {
-            for (InputFile file : listOfSourceFilesForCopying) {
-                if (operationContinues) {
+            for (InputFile file : listOfSourceInputFilesForCopying) {
+                if (copyingContinues) {
                     getInfoOfFile(file);
                     System.out.println(file.getDestinationPathWithFileName());
                     copyingFile(file);
                     getProcessOfDone();
-                    numberOfDonePhotos++;
+                    numberOfCopiedFiles++;
                 }
             }
         } else {
             setPercentOfDone(100);
-            setMessage("Space is not Enough");
+            setMessageToViewer("Space is not Enough");
             return;
         }
         setPercentOfDone(100);
-        setMessage("All Photo were copy");
-    }
-
-    //-------------------------------------- Get Percent of Done -------------------------------------------------
-    //------------------------------------------------------------------------------------------------------------
-
-    public void getProcessOfDone() {
-        setPercentOfDone((numberOfDonePhotos * 100) / listOfSourceFilesForCopying.size());
-    }
-
-
-    private boolean thereIsEnoughFreeSpaceForCopying() {
-        File destFolder = new File(destinationPath);
-        long destinationFreeSize = destFolder.getFreeSpace();
-        return destinationFreeSize > inputFilesLength;
+        setMessageToViewer("All Photo were copy");
     }
 
 
     //------------------------------------- Get List Of Input Files ----------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-
     private void getListOfRawInputFilesFromSourcePath(String sourcePath) {
-        System.out.println(sourcePath);
-        File[] listOfRawInputFiles = getListOfInputFiles(sourcePath);
 
+        File[] listOfRawInputFiles = getListOfInputFiles(sourcePath);
 
         if (listOfRawInputFiles.length != 0) {
             for (File rawInputFile : listOfRawInputFiles) {
                 if (!rawInputFile.isFile()) {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
                 } else {
-                    listOfSourceFilesForCopying.add(new InputFile(rawInputFile, destinationPath));
-                        inputFilesLength += rawInputFile.length();
-
+                    getListOfSourceInputFilesForCopying(new InputFile(rawInputFile, destinationPathName));
+                    setSizeOfSourceFilesForCopy(rawInputFile);
                 }
             }
         }
     }
 
+    private void getListOfSourceInputFilesForCopying(InputFile inputFile) {
+        listOfSourceInputFilesForCopying.add(inputFile);
+    }
+
+    private void setSizeOfSourceFilesForCopy(File file) {
+        sizeOfSourceFilesForCopy += file.length();
+    }
 
     private File[] getListOfInputFiles(String sourcePath) {
         File sourceFolder = new File(sourcePath);
         return sourceFolder.listFiles();
     }
 
-    //--------------------------------------------------------------------------------------------------------------
+
+    //-------------------------------------- Check Free space for copying ----------------------------------------
+    //------------------------------------------------------------------------------------------------------------
+
+    private boolean thereIsEnoughFreeSpaceForCopying() {
+        File destFolder = new File(destinationPathName);
+        long destinationFreeSize = destFolder.getFreeSpace();
+        return destinationFreeSize > sizeOfSourceFilesForCopy;//we got sizeOfSourceFilesForCopy in
+        // setSizeOfSourceFilesForCopy(File file) when getting list of raw input files
+    }
+
+
+    //-------------------------------------- Get Info About File -------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------
+
+    private void getInfoOfFile(InputFile file) {
+
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(file.getFile());
+
+            for (Directory directory : metadata.getDirectories()) {
+
+                for (Tag tag : directory.getTags()) {
+
+                    //-------------------------  Getting file name. File name looks like fileName.jpg  -----------
+                    //--------------------------------------------------------------------------------------------
+                    if (tag.toString().contains("[File] File Name")) {
+                        String[] testName = tag.toString().split("\\.");
+                        if (testName.length != 2 || testName[1].equals("null")) {//Checking file name not looks like
+                            // fileName.jpg.jpg
+                            //TODO Fix it:
+                            // This is allows doesn't copies strange files. But if file have
+                            // several points in its name then files will not be copied.
+                            break;
+                        }
+                        file.setName(tag.toString().substring(18).trim());
+                    }
+
+                    //-------------------------  Getting file Date in String  ------------------------------------
+                    //--------------------------------------------------------------------------------------------
+                    if (tag.toString().contains("File Modified Date")) {
+                        String[] tempAllDates = tag.toString().substring(31).split(" ");
+                        file.setTime(tempAllDates[2].trim());
+                        file.setDay(tempAllDates[1].trim());
+                        file.setMonth(tempAllDates[0].replace(".", ""));
+                        file.setYear(tempAllDates[4].trim());
+                    }
+
+                    //-------------------------  Getting file Format in String  ----------------------------------
+                    //--------------------------------------------------------------------------------------------
+                    if (tag.toString().contains("Detected File Type Name")) {
+                        file.setType(tag.toString().substring(38).trim());
+                    }
+
+                }
+            }
+        } catch (Exception empty) {
+            // System.out.println("Exception in getInfoOfFile(File file) method");
+        }
+    }
+
+    //-------------------------------------- Get Percent of Done -------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------
+
+    public void getProcessOfDone() {
+        setPercentOfDone((numberOfCopiedFiles * 100) / listOfSourceInputFilesForCopying.size());
+    }
 
 
     private void copyingFile(InputFile file) {
@@ -233,43 +295,6 @@ public class Model implements Runnable {
 
     private void createNewDirectory(File file) {
         if (!file.mkdirs()) System.out.println("Directory didn't created");
-    }
-
-    private void getInfoOfFile(InputFile file) {
-
-        try {
-            Metadata metadata = ImageMetadataReader.readMetadata(file.getFile());
-
-            for (Directory directory : metadata.getDirectories()) {
-
-
-                for (Tag tag : directory.getTags()) {
-
-                    if (tag.toString().contains("[File] File Name")) {
-                        String[] testName = tag.toString().split("\\.");
-                        if (testName.length != 2 || testName[1].equals("null")) {
-                            break;
-                        }
-                        file.setName(tag.toString().substring(18).trim());
-                    }
-
-                    if (tag.toString().contains("File Modified Date")) {
-                        String[] tempAllDates = tag.toString().substring(31).split(" ");
-                        file.setTime(tempAllDates[2].trim());
-                        file.setDay(tempAllDates[1].trim());
-                        file.setMonth(tempAllDates[0].replace(".", ""));
-                        file.setYear(tempAllDates[4].trim());
-                    }
-
-                    if (tag.toString().contains("Detected File Type Name")) {
-                        file.setType(tag.toString().substring(38).trim());
-                    }
-
-                }
-            }
-        } catch (Exception e) {
-            // System.out.println("Exception in getInfoOfFile(File file) method");
-        }
     }
 
 

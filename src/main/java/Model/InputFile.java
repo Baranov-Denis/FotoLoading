@@ -11,10 +11,18 @@ public class InputFile {
     private String day;
     private String time;
     private String type;
-    private final String destinationPathName;
+    private String destinationPathName;
 
-    public String getDestinationPathWithFileName() {
-        return createNewDestinationPathWithFileName();
+    public void setDestinationPathName(String destinationPathName) {
+        this.destinationPathName = destinationPathName;
+    }
+
+    public String getDestinationPathName() {
+        return destinationPathName;
+    }
+
+      public void createDestinationPathWithFileName() {
+        createNewDestinationPathWithFileName();
     }
 
     public String getDestinationPathWithoutFileName() {
@@ -70,8 +78,8 @@ public class InputFile {
                 "\\";
     }
 
-    private String createNewDestinationPathWithFileName() {
-        return destinationPathName + "\\" + type + "\\" + year + "\\" + year + " " + month +
+    private void createNewDestinationPathWithFileName() {
+        destinationPathName = destinationPathName + "\\" + type + "\\" + year + "\\" + year + " " + month +
                 " " + day +
                 "\\" + name;
     }

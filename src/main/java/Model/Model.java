@@ -173,50 +173,51 @@ public class Model implements Runnable {
     //-------------------------------------- Get Info About File -------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-    private void getInfoOfFile(InputFile file) {
+    private void getInfoOfFile(InputFile inputFile) {
 
         try {
-            Metadata metadata = ImageMetadataReader.readMetadata(file.getFile());
+            Metadata metadata = ImageMetadataReader.readMetadata(inputFile.getFile());
 
             for (Directory directory : metadata.getDirectories()) {
 
                 for (Tag tag : directory.getTags()) {
 
-                    //-------------------------  Getting file name. File name looks like fileName.jpg  -----------
+                    //-------------------------  Getting inputFile name. File name looks like fileName.jpg  ------
                     //--------------------------------------------------------------------------------------------
                     if (tag.toString().contains("[File] File Name")) {
                         String[] testName = tag.toString().split("\\.");
-                        if (testName.length != 2 || testName[1].equals("null")) {//Checking file name not looks like
+                        if (testName.length != 2 || testName[1].equals("null")) {//Checking inputFile name not looks like
                             // fileName.jpg.jpg
                             //TODO Fix it:
-                            // This is allows doesn't copies strange files. But if file have
+                            // This is allows doesn't copies strange files. But if inputFile have
                             // several points in its name then files will not be copied.
                             break;
                         }
-                        file.setName(tag.toString().substring(18).trim());
+                        inputFile.setName(tag.toString().substring(18).trim());
                     }
 
-                    //-------------------------  Getting file Date in String  ------------------------------------
+                    //-------------------------  Getting inputFile Date in String  -------------------------------
                     //--------------------------------------------------------------------------------------------
                     if (tag.toString().contains("File Modified Date")) {
                         String[] tempAllDates = tag.toString().substring(31).split(" ");
-                        file.setTime(tempAllDates[2].trim());
-                        file.setDay(tempAllDates[1].trim());
-                        file.setMonth(tempAllDates[0].replace(".", ""));
-                        file.setYear(tempAllDates[4].trim());
+                        inputFile.setTime(tempAllDates[2].trim());
+                        inputFile.setDay(tempAllDates[1].trim());
+                        inputFile.setMonth(tempAllDates[0].replace(".", ""));
+                        inputFile.setYear(tempAllDates[4].trim());
                     }
 
-                    //-------------------------  Getting file Format in String  ----------------------------------
+                    //-------------------------  Getting inputFile Format in String  -----------------------------
                     //--------------------------------------------------------------------------------------------
                     if (tag.toString().contains("Detected File Type Name")) {
-                        file.setType(tag.toString().substring(38).trim());
+                        inputFile.setType(tag.toString().substring(38).trim());
                     }
 
                 }
             }
         } catch (Exception empty) {
-            // System.out.println("Exception in getInfoOfFile(File file) method");
+            // System.out.println("Exception in getInfoOfFile(File inputFile) method");
         }
+
     }
 
 
@@ -228,7 +229,18 @@ public class Model implements Runnable {
         if (!(inputFile.getName() == null)) {
             checkingAndCreatingDirectory(inputFile.getDestinationPathWithoutFileName()); //Checking and creating Folder for
             // Input File
-            checkingForFilesWithDuplicateNames(inputFile, inputFile.getDestinationPathWithFileName());
+
+
+            //TODO
+            // inputFile.createDestinationPathWithFileName(); must be not here
+            // Need trying do it | in getInfoOfFile(InputFile inputFile)
+            //                  \/
+            inputFile.createDestinationPathWithFileName();
+
+
+            checkingForFilesWithDuplicateNames(inputFile);
+
+
 
         }
     }
@@ -244,56 +256,61 @@ public class Model implements Runnable {
         if (!file.mkdirs()) System.out.println("Directory didn't created");
     }
 
-    private void checkingForFilesWithDuplicateNames(InputFile file, String destinationPath) {
+
+
+
+    private void checkingForFilesWithDuplicateNames(InputFile inputFile/*, String destinationPath*/) {
+
+
+      String destinationPath = inputFile.getDestinationPathName();
 
 
         if (Files.exists(Paths.get(destinationPath))) {
 
+
+
             InputFile existFile = new InputFile(new File(destinationPath), destinationPath);
             getInfoOfFile(existFile);
 
-            if (!existFile.equals(file)) {
+            if (!existFile.equals(inputFile)) {
 
-                destinationPath = createNewNameForRepeatingFile(destinationPath);
-                checkingForFilesWithDuplicateNames(file, destinationPath);
+
+              String  newDestinationPath = createNewNameForRepeatingFile(destinationPath);
+
+              inputFile.setDestinationPathName(newDestinationPath);
+
+                checkingForFilesWithDuplicateNames(inputFile);
+
             }
 
         } else {
-            writeFileToDestination(file.getFile(), destinationPath);
+
+            writeFileToDestination(inputFile.getFile(),destinationPath);
         }
     }
-
-
-
-
-
-    //-------------------------------------- Get Percent of Done -------------------------------------------------
-    //------------------------------------------------------------------------------------------------------------
-
-    public void getProcessOfDone() {
-        setPercentOfDone((numberOfCopiedFiles * 100) / listOfSourceInputFilesForCopying.size());
-    }
-
-
 
 
 
 
 
     private void writeFileToDestination(File file, String destinationPath) {
+        System.out.println(destinationPath);
         try {
             Files.copy(file.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException exception) {
-            System.out.println("Writing file failed!");
+            System.out.println("Writing file failed");
         }
     }
 
 
     private String createNewNameForRepeatingFile(String destinationPath) {
+       // String destinationPath = inputFile.getDestinationPathWithFileName();
         String[] fileNameSplitByPoint = destinationPath.split("\\.");
         String[] fileNameSplitBySlash = fileNameSplitByPoint[0].split("\\\\");
+        System.out.println(destinationPath);
         String newFileName;
         if (!fileNameSplitBySlash[fileNameSplitBySlash.length - 1].contains("Duplicate")) {
+
             newFileName =
                     fileNameSplitByPoint[0] + "__Duplicate-1" +
                             "." + fileNameSplitByPoint[1];
@@ -305,6 +322,17 @@ public class Model implements Runnable {
         }
         return newFileName;
     }
+
+
+
+
+    //-------------------------------------- Get Percent of Done -------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------
+
+    public void getProcessOfDone() {
+        setPercentOfDone((numberOfCopiedFiles * 100) / listOfSourceInputFilesForCopying.size());
+    }
+
 
 
 

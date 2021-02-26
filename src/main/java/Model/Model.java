@@ -23,8 +23,8 @@ public class Model implements Runnable {
     private int percentOfDone;
 
 
-    //--------------------------------------------------- Getters and Setters ---------------------------------
-    //---------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------- Getters and Setters ------------------------------------
+    //------------------------------------------------------------------------------------------------------------
 
 
     public int getPercentOfDone() {
@@ -110,8 +110,7 @@ public class Model implements Runnable {
         if (thereIsEnoughFreeSpaceForCopying()) {
             for (InputFile file : listOfSourceInputFilesForCopying) {
                 if (copyingContinues) {
-                    getInfoOfFile(file);
-                    System.out.println(file.getDestinationPathWithFileName());
+                    getInfoOfFile(file);//Add all information about Input File
                     copyingFile(file);
                     getProcessOfDone();
                     numberOfCopiedFiles++;
@@ -127,7 +126,7 @@ public class Model implements Runnable {
     }
 
 
-    //------------------------------------- Get List Of Input Files ----------------------------------------------
+    //--------------------------------------- Get List Of Input Files --------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
     private void getListOfRawInputFilesFromSourcePath(String sourcePath) {
@@ -220,25 +219,30 @@ public class Model implements Runnable {
         }
     }
 
-    //-------------------------------------- Get Percent of Done -------------------------------------------------
+
+    //-------------------------------------- Copying File --------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-    public void getProcessOfDone() {
-        setPercentOfDone((numberOfCopiedFiles * 100) / listOfSourceInputFilesForCopying.size());
-    }
+    private void copyingFile(InputFile inputFile) {
 
-
-    private void copyingFile(InputFile file) {
-
-
-        //  System.out.println("******* "+file.getName());
-        if (!(file.getName() == null)) {
-            checkExistingDirectory(file.getDestinationPathWithoutFileName());
-            checkingForFilesWithDuplicateNames(file, file.getDestinationPathWithFileName());
+        if (!(inputFile.getName() == null)) {
+            checkingAndCreatingDirectory(inputFile.getDestinationPathWithoutFileName()); //Checking and creating Folder for
+            // Input File
+            checkingForFilesWithDuplicateNames(inputFile, inputFile.getDestinationPathWithFileName());
 
         }
     }
 
+    private void checkingAndCreatingDirectory(String destination) {
+        File newFile = new File(destination);
+        if (!newFile.exists()) {
+            createNewDirectory(newFile);
+        }
+    }
+
+    private void createNewDirectory(File file) {
+        if (!file.mkdirs()) System.out.println("Directory didn't created");
+    }
 
     private void checkingForFilesWithDuplicateNames(InputFile file, String destinationPath) {
 
@@ -258,6 +262,23 @@ public class Model implements Runnable {
             writeFileToDestination(file.getFile(), destinationPath);
         }
     }
+
+
+
+
+
+    //-------------------------------------- Get Percent of Done -------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------
+
+    public void getProcessOfDone() {
+        setPercentOfDone((numberOfCopiedFiles * 100) / listOfSourceInputFilesForCopying.size());
+    }
+
+
+
+
+
+
 
     private void writeFileToDestination(File file, String destinationPath) {
         try {
@@ -286,16 +307,9 @@ public class Model implements Runnable {
     }
 
 
-    private void checkExistingDirectory(String destination) {
-        File newFile = new File(destination);
-        if (!newFile.exists()) {
-            createNewDirectory(newFile);
-        }
-    }
 
-    private void createNewDirectory(File file) {
-        if (!file.mkdirs()) System.out.println("Directory didn't created");
-    }
+
+
 
 
 }

@@ -11,27 +11,37 @@ public class InputFile {
     private String day;
     private String time;
     private String type;
-    private String destinationPathName;
+  //  private String destinationPathWithFileName;
+  //  private String destinationPathWithoutFileName;
+    private String absolutePathWithFileName;
+    private String absolutePathWithoutFileName;
 
-    public void setDestinationPathName(String destinationPathName) {
-        this.destinationPathName = destinationPathName;
+
+    public String getAbsolutePathWithoutFileName() {
+        return absolutePathWithoutFileName;
     }
 
-    public String getDestinationPathName() {
-        return destinationPathName;
+    public String getAbsolutePathWithFileName() {
+        return absolutePathWithFileName;
     }
 
-      public void createDestinationPathWithFileName() {
-        createNewDestinationPathWithFileName();
+    public void createAllNeededPaths(String destinationPath){
+        createNewAbsolutePathWithoutFileName(destinationPath);
+        createNewAbsolutePathName(destinationPath);
+      //  createNewDestinationPathWithFileName();
+       // createNewDestinationPathWithoutFileName();
     }
 
-    public String getDestinationPathWithoutFileName() {
-        return createNewDestinationPathWithoutFileName();
+
+
+
+    public void createAbsolutePathName(String destinationPath){
+        createNewAbsolutePathName(destinationPath);
     }
 
-    public InputFile(File file, String destinationPathName) {
+
+    public InputFile(File file) {
         this.file = file;
-        this.destinationPathName = destinationPathName;
     }
 
     public File getFile() {
@@ -72,16 +82,28 @@ public class InputFile {
     }
 
 
-    private String createNewDestinationPathWithoutFileName() {
-        return destinationPathName + "\\" + type + "\\" + year + "\\" + year + " " + month +
+  /*  private void createNewDestinationPathWithoutFileName() {
+        destinationPathWithoutFileName = type + "\\" + year + "\\" + year + " " + month +
                 " " + day +
                 "\\";
-    }
+    }*/
 
-    private void createNewDestinationPathWithFileName() {
-        destinationPathName = destinationPathName + "\\" + type + "\\" + year + "\\" + year + " " + month +
+/*    private void createNewDestinationPathWithFileName() {
+        destinationPathWithFileName =  type + "\\" + year + "\\" + year + " " + month +
                 " " + day +
                 "\\" + name;
+    }*/
+
+    private void createNewAbsolutePathName(String destinationPath){
+        absolutePathWithFileName = destinationPath + "\\" + type + "\\" + year + "\\" + year + " " + month +
+                " " + day +
+                "\\" + name;
+    }
+
+    private void createNewAbsolutePathWithoutFileName(String destinationPath) {
+        absolutePathWithoutFileName = destinationPath + "\\" + type + "\\" + year + "\\" + year + " " + month +
+                " " + day +
+                "\\";
     }
 
     private String replaceMonthName(String month) {

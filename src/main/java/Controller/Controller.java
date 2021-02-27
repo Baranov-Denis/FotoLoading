@@ -23,6 +23,7 @@ public class Controller {
         model.readSettings();
         viewer.setSourcePath(model.getSourcePathName());
         viewer.setDestinationPath(model.getDestinationPathName());
+        viewer.setMessage(model.getMessageToViewer());
         SwingUtilities.invokeLater(viewer::runMainPage);
     }
 

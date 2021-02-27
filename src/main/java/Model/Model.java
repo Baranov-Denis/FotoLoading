@@ -8,6 +8,7 @@ import com.drew.metadata.Tag;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -75,8 +76,10 @@ public class Model implements Runnable {
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream("setting.txt"))) {
             sourcePathName = inputStream.readUTF();
             destinationPathName = inputStream.readUTF();
+            setMessageToViewer("Ready to work");
         } catch (Exception e) {
             System.out.println("Exception in readSetting()");
+            setMessageToViewer("Choose input and output Folders");
             sourcePathName = "D:\\";
             destinationPathName = "D:\\";
             writeSettings(sourcePathName, destinationPathName);
@@ -138,7 +141,7 @@ public class Model implements Runnable {
                 if (!rawInputFile.isFile()) {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
                 } else {
-                    getListOfSourceInputFilesForCopying(new InputFile(rawInputFile, destinationPathName));
+                    getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
                     setSizeOfSourceFilesForCopy(rawInputFile);
                 }
             }
@@ -194,7 +197,10 @@ public class Model implements Runnable {
                             break;
                         }
                         inputFile.setName(tag.toString().substring(18).trim());
+
                     }
+
+
 
                     //-------------------------  Getting inputFile Date in String  -------------------------------
                     //--------------------------------------------------------------------------------------------
@@ -213,10 +219,13 @@ public class Model implements Runnable {
                     }
 
                 }
+
             }
         } catch (Exception empty) {
             // System.out.println("Exception in getInfoOfFile(File inputFile) method");
         }
+
+        inputFile.createAllNeededPaths(destinationPathName);
 
     }
 
@@ -227,21 +236,14 @@ public class Model implements Runnable {
     private void copyingFile(InputFile inputFile) {
 
         if (!(inputFile.getName() == null)) {
-            checkingAndCreatingDirectory(inputFile.getDestinationPathWithoutFileName()); //Checking and creating Folder for
+
+            checkingAndCreatingDirectory(inputFile.getAbsolutePathWithoutFileName()); //Checking and creating Folder for
             // Input File
-
-
-            //TODO
-            // inputFile.createDestinationPathWithFileName(); must be not here
-            // Need trying do it | in getInfoOfFile(InputFile inputFile)
-            //                  \/
-            inputFile.createDestinationPathWithFileName();
-
 
             checkingForFilesWithDuplicateNames(inputFile);
 
 
-
+            writeFileToDestination(inputFile.getFile(),inputFile.getAbsolutePathWithFileName());
         }
     }
 
@@ -259,61 +261,58 @@ public class Model implements Runnable {
 
 
 
-    private void checkingForFilesWithDuplicateNames(InputFile inputFile/*, String destinationPath*/) {
+    private void checkingForFilesWithDuplicateNames(InputFile inputFile) {
 
 
-      String destinationPath = inputFile.getDestinationPathName();
-
-
-        if (Files.exists(Paths.get(destinationPath))) {
+      String absolutePathName = inputFile.getAbsolutePathWithFileName();
 
 
 
-            InputFile existFile = new InputFile(new File(destinationPath), destinationPath);
+
+        if (Files.exists(Paths.get(absolutePathName), LinkOption.NOFOLLOW_LINKS)) {
+
+
+
+            InputFile existFile = new InputFile(new File(absolutePathName));
+
             getInfoOfFile(existFile);
 
-            if (!existFile.equals(inputFile)) {
+
+    if (!existFile.equals(inputFile)) {
 
 
-              String  newDestinationPath = createNewNameForRepeatingFile(destinationPath);
+        //String  newDestinationPath = createNewNameForRepeatingFile(absolutePathName);
 
-              inputFile.setDestinationPathName(newDestinationPath);
+        String name = createNewNameForRepeatingFile(inputFile.getName());
 
-                checkingForFilesWithDuplicateNames(inputFile);
+        inputFile.setName(name);
 
-            }
+        inputFile.createAbsolutePathName(destinationPathName);
 
-        } else {
+        // inputFile.setAbsolutePathWithFileName(newDestinationPath);
 
-            writeFileToDestination(inputFile.getFile(),destinationPath);
+
+        checkingForFilesWithDuplicateNames(inputFile);
+
+
+    }
+
+
         }
     }
 
 
 
+    private String createNewNameForRepeatingFile(String name) {
+        String[] fileNameSplitByPoint = name.split("\\.");
 
-
-    private void writeFileToDestination(File file, String destinationPath) {
-        System.out.println(destinationPath);
-        try {
-            Files.copy(file.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException exception) {
-            System.out.println("Writing file failed");
-        }
-    }
-
-
-    private String createNewNameForRepeatingFile(String destinationPath) {
-       // String destinationPath = inputFile.getDestinationPathWithFileName();
-        String[] fileNameSplitByPoint = destinationPath.split("\\.");
-        String[] fileNameSplitBySlash = fileNameSplitByPoint[0].split("\\\\");
-        System.out.println(destinationPath);
         String newFileName;
-        if (!fileNameSplitBySlash[fileNameSplitBySlash.length - 1].contains("Duplicate")) {
+        if (!fileNameSplitByPoint[fileNameSplitByPoint.length - 2].contains("Duplicate")) {
 
             newFileName =
                     fileNameSplitByPoint[0] + "__Duplicate-1" +
                             "." + fileNameSplitByPoint[1];
+
         } else {
             String[] splitByDuplicate = fileNameSplitByPoint[0].split("__Duplicate-");
             int countOfDuplicate = Integer.parseInt(splitByDuplicate[1]);
@@ -322,6 +321,41 @@ public class Model implements Runnable {
         }
         return newFileName;
     }
+
+
+
+
+
+    private void writeFileToDestination(File file, String destinationPath) {
+
+
+        try {
+            Files.copy(file.toPath(), Paths.get(destinationPath),StandardCopyOption.COPY_ATTRIBUTES);
+        } catch (IOException exception) {
+            System.out.println("Writing file failed");
+        }
+    }
+
+
+//    private String createNewNameForRepeatingFile(String destinationPath) {
+//        String[] fileNameSplitByPoint = destinationPath.split("\\.");
+//        String[] fileNameSplitBySlash = fileNameSplitByPoint[0].split("\\\\");
+//
+//        String newFileName;
+//        if (!fileNameSplitBySlash[fileNameSplitBySlash.length - 1].contains("Duplicate")) {
+//
+//            newFileName =
+//                    fileNameSplitByPoint[0] + "__Duplicate-1" +
+//                            "." + fileNameSplitByPoint[1];
+//
+//        } else {
+//            String[] splitByDuplicate = fileNameSplitByPoint[0].split("__Duplicate-");
+//            int countOfDuplicate = Integer.parseInt(splitByDuplicate[1]);
+//            newFileName = splitByDuplicate[0] + "__Duplicate-" + ++countOfDuplicate +
+//                    "." + fileNameSplitByPoint[1];
+//        }
+//        return newFileName;
+//    }
 
 
 

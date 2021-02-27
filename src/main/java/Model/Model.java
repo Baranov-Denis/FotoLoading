@@ -7,10 +7,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 
 public class Model implements Runnable {
@@ -201,7 +198,6 @@ public class Model implements Runnable {
                     }
 
 
-
                     //-------------------------  Getting inputFile Date in String  -------------------------------
                     //--------------------------------------------------------------------------------------------
                     if (tag.toString().contains("File Modified Date")) {
@@ -243,7 +239,7 @@ public class Model implements Runnable {
             checkingForFilesWithDuplicateNames(inputFile);
 
 
-            writeFileToDestination(inputFile.getFile(),inputFile.getAbsolutePathWithFileName());
+            writeFileToDestination(inputFile);
         }
     }
 
@@ -259,18 +255,13 @@ public class Model implements Runnable {
     }
 
 
-
-
     private void checkingForFilesWithDuplicateNames(InputFile inputFile) {
 
 
-      String absolutePathName = inputFile.getAbsolutePathWithFileName();
-
-
+        String absolutePathName = inputFile.getAbsolutePathWithFileName();
 
 
         if (Files.exists(Paths.get(absolutePathName), LinkOption.NOFOLLOW_LINKS)) {
-
 
 
             InputFile existFile = new InputFile(new File(absolutePathName));
@@ -278,29 +269,28 @@ public class Model implements Runnable {
             getInfoOfFile(existFile);
 
 
-    if (!existFile.equals(inputFile)) {
+            if (!existFile.equals(inputFile)) {
 
 
-        //String  newDestinationPath = createNewNameForRepeatingFile(absolutePathName);
+                //String  newDestinationPath = createNewNameForRepeatingFile(absolutePathName);
 
-        String name = createNewNameForRepeatingFile(inputFile.getName());
+                String name = createNewNameForRepeatingFile(inputFile.getName());
 
-        inputFile.setName(name);
+                inputFile.setName(name);
 
-        inputFile.createAbsolutePathName(destinationPathName);
+                inputFile.createAbsolutePathName(destinationPathName);
 
-        // inputFile.setAbsolutePathWithFileName(newDestinationPath);
-
-
-        checkingForFilesWithDuplicateNames(inputFile);
+                // inputFile.setAbsolutePathWithFileName(newDestinationPath);
 
 
-    }
+                checkingForFilesWithDuplicateNames(inputFile);
+
+
+            }
 
 
         }
     }
-
 
 
     private String createNewNameForRepeatingFile(String name) {
@@ -323,41 +313,15 @@ public class Model implements Runnable {
     }
 
 
-
-
-
-    private void writeFileToDestination(File file, String destinationPath) {
-
-
+    private void writeFileToDestination(InputFile inputFile) {
+        Path sourcePath = inputFile.getFile().toPath();
+        Path destinationPath = Paths.get(inputFile.getAbsolutePathWithFileName());
         try {
-            Files.copy(file.toPath(), Paths.get(destinationPath),StandardCopyOption.COPY_ATTRIBUTES);
+            Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException exception) {
             System.out.println("Writing file failed");
         }
     }
-
-
-//    private String createNewNameForRepeatingFile(String destinationPath) {
-//        String[] fileNameSplitByPoint = destinationPath.split("\\.");
-//        String[] fileNameSplitBySlash = fileNameSplitByPoint[0].split("\\\\");
-//
-//        String newFileName;
-//        if (!fileNameSplitBySlash[fileNameSplitBySlash.length - 1].contains("Duplicate")) {
-//
-//            newFileName =
-//                    fileNameSplitByPoint[0] + "__Duplicate-1" +
-//                            "." + fileNameSplitByPoint[1];
-//
-//        } else {
-//            String[] splitByDuplicate = fileNameSplitByPoint[0].split("__Duplicate-");
-//            int countOfDuplicate = Integer.parseInt(splitByDuplicate[1]);
-//            newFileName = splitByDuplicate[0] + "__Duplicate-" + ++countOfDuplicate +
-//                    "." + fileNameSplitByPoint[1];
-//        }
-//        return newFileName;
-//    }
-
-
 
 
     //-------------------------------------- Get Percent of Done -------------------------------------------------
@@ -366,12 +330,6 @@ public class Model implements Runnable {
     public void getProcessOfDone() {
         setPercentOfDone((numberOfCopiedFiles * 100) / listOfSourceInputFilesForCopying.size());
     }
-
-
-
-
-
-
 
 
 }

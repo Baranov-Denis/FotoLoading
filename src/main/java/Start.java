@@ -2,8 +2,6 @@ import Controller.Controller;
 import Model.Model;
 import Viewer.Viewer;
 
-import javax.swing.*;
-
 public class Start {
     public static void main(String[] args) {
         Model appModel = new Model();
@@ -11,8 +9,6 @@ public class Start {
         Viewer appViewer = new Viewer(mainController);
         mainController.addViewer(appViewer);
 
-
         mainController.runApp();
-        //SwingUtilities.invokeLater(mainController::runApp);
     }
 }

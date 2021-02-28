@@ -22,7 +22,7 @@ public class Controller {
     public void runApp() {
         model.readSettings();
         viewer.setSourcePath(model.getSourcePathName());
-        viewer.setDestinationPath(model.getDestinationPathName());
+        viewer.setDestinationPath(Model.getDestinationPathName());
         viewer.setMessage(model.getMessageToViewer());
         SwingUtilities.invokeLater(viewer::runMainPage);
     }
@@ -74,11 +74,11 @@ public class Controller {
 
     public void setSourcePath(String sourcePath, String destination) {
         model.setSourcePathName(sourcePath);
-        model.setDestinationPathName(destination);
+        Model.setDestinationPathName(destination);
         model.writeSettings(sourcePath, destination);
         model.readSettings();
         viewer.setSourcePath(model.getSourcePathName());
-        viewer.setDestinationPath(model.getDestinationPathName());
+        viewer.setDestinationPath(Model.getDestinationPathName());
         SwingUtilities.invokeLater(viewer::runMainPage);
     }
 

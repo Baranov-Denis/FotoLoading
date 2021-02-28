@@ -22,10 +22,6 @@ public class Viewer extends JFrame {
         this.message = message;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
     public void setProgressBarValue(int progressBarValue) {
         this.progressBarValue = progressBarValue;
     }
@@ -75,6 +71,8 @@ public class Viewer extends JFrame {
         panel.removeAll();
 
 
+        ImageIcon img = new ImageIcon("H:\\FotoLoading\\photo.png");
+        frame.setIconImage(img.getImage());
 
         JLabel textAboveSourceButton = new JLabel("Choose source path:");
 

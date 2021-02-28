@@ -130,13 +130,12 @@ public class Model implements Runnable {
 
         if (listOfRawInputFiles.length != 0) {
             for (File rawInputFile : listOfRawInputFiles) {
+                //This check need for deleting strange temporary files.
                 if (!rawInputFile.isFile()) {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
-                } else {
-                    if(rawInputFile.length() > 50000) {
-                        getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
-                        setSizeOfSourceFilesForCopy(rawInputFile);
-                    }
+                } else if (rawInputFile.length() > 50000) {
+                    getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
+                    setSizeOfSourceFilesForCopy(rawInputFile);
                 }
             }
         }
@@ -198,31 +197,21 @@ public class Model implements Runnable {
 
     private void checkingForFilesWithDuplicateNames(InputFile inputFile) {
 
-
         String absolutePathName = inputFile.getAbsolutePathWithFileName();
-
 
         if (Files.exists(Paths.get(absolutePathName), LinkOption.NOFOLLOW_LINKS)) {
 
+            InputFile existingFile = new InputFile(new File(absolutePathName));
 
-            InputFile existFile = new InputFile(new File(absolutePathName));
+            if (!existingFile.equals(inputFile)) {
 
+                String newName = createNewNameForRepeatingFile(inputFile.getName());
 
-            if (!existFile.equals(inputFile)) {
-
-
-
-                String name = createNewNameForRepeatingFile(inputFile.getName());
-
-                inputFile.setName(name);
+                inputFile.setName(newName);
 
                 inputFile.createAbsolutePathName(destinationPathName);
 
-
-
-
                 checkingForFilesWithDuplicateNames(inputFile);
-
 
             }
 

@@ -1,10 +1,6 @@
 package Model;
 
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Directory;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
 
 import java.io.*;
 import java.nio.file.*;
@@ -13,7 +9,7 @@ import java.util.ArrayList;
 public class Model implements Runnable {
     private ArrayList<InputFile> listOfSourceInputFilesForCopying;
     private String sourcePathName;
-    private String destinationPathName;
+    private static String destinationPathName;
     private boolean copyingContinues = true;
     private int numberOfCopiedFiles;
     private long sizeOfSourceFilesForCopy;
@@ -24,6 +20,10 @@ public class Model implements Runnable {
     //--------------------------------------------------- Getters and Setters ------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
+
+    public static void setDestinationPathName(String destinationPathName) {
+        Model.destinationPathName = destinationPathName;
+    }
 
     public int getPercentOfDone() {
         return percentOfDone;
@@ -57,12 +57,8 @@ public class Model implements Runnable {
         this.sourcePathName = sourcePathName;
     }
 
-    public String getDestinationPathName() {
+    public static String getDestinationPathName() {
         return destinationPathName;
-    }
-
-    public void setDestinationPathName(String destinationPathName) {
-        this.destinationPathName = destinationPathName;
     }
 
 
@@ -110,7 +106,6 @@ public class Model implements Runnable {
         if (thereIsEnoughFreeSpaceForCopying()) {
             for (InputFile file : listOfSourceInputFilesForCopying) {
                 if (copyingContinues) {
-                    getInfoOfFile(file);//Add all information about Input File
                     copyingFile(file);
                     getProcessOfDone();
                     numberOfCopiedFiles++;
@@ -138,8 +133,10 @@ public class Model implements Runnable {
                 if (!rawInputFile.isFile()) {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
                 } else {
-                    getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
-                    setSizeOfSourceFilesForCopy(rawInputFile);
+                    if(rawInputFile.length() > 50000) {
+                        getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
+                        setSizeOfSourceFilesForCopy(rawInputFile);
+                    }
                 }
             }
         }
@@ -167,62 +164,6 @@ public class Model implements Runnable {
         long destinationFreeSize = destFolder.getFreeSpace();
         return destinationFreeSize > sizeOfSourceFilesForCopy;//we got sizeOfSourceFilesForCopy in
         // setSizeOfSourceFilesForCopy(File file) when getting list of raw input files
-    }
-
-
-    //-------------------------------------- Get Info About File -------------------------------------------------
-    //------------------------------------------------------------------------------------------------------------
-
-    private void getInfoOfFile(InputFile inputFile) {
-
-        try {
-            Metadata metadata = ImageMetadataReader.readMetadata(inputFile.getFile());
-
-            for (Directory directory : metadata.getDirectories()) {
-
-                for (Tag tag : directory.getTags()) {
-
-                    //-------------------------  Getting inputFile name. File name looks like fileName.jpg  ------
-                    //--------------------------------------------------------------------------------------------
-                    if (tag.toString().contains("[File] File Name")) {
-                        String[] testName = tag.toString().split("\\.");
-                        if (testName.length != 2 || testName[1].equals("null")) {//Checking inputFile name not looks like
-                            // fileName.jpg.jpg
-                            //TODO Fix it:
-                            // This is allows doesn't copies strange files. But if inputFile have
-                            // several points in its name then files will not be copied.
-                            break;
-                        }
-                        inputFile.setName(tag.toString().substring(18).trim());
-
-                    }
-
-
-                    //-------------------------  Getting inputFile Date in String  -------------------------------
-                    //--------------------------------------------------------------------------------------------
-                    if (tag.toString().contains("File Modified Date")) {
-                        String[] tempAllDates = tag.toString().substring(31).split(" ");
-                        inputFile.setTime(tempAllDates[2].trim());
-                        inputFile.setDay(tempAllDates[1].trim());
-                        inputFile.setMonth(tempAllDates[0].replace(".", ""));
-                        inputFile.setYear(tempAllDates[4].trim());
-                    }
-
-                    //-------------------------  Getting inputFile Format in String  -----------------------------
-                    //--------------------------------------------------------------------------------------------
-                    if (tag.toString().contains("Detected File Type Name")) {
-                        inputFile.setType(tag.toString().substring(38).trim());
-                    }
-
-                }
-
-            }
-        } catch (Exception empty) {
-            // System.out.println("Exception in getInfoOfFile(File inputFile) method");
-        }
-
-        inputFile.createAllNeededPaths(destinationPathName);
-
     }
 
 
@@ -266,13 +207,10 @@ public class Model implements Runnable {
 
             InputFile existFile = new InputFile(new File(absolutePathName));
 
-            getInfoOfFile(existFile);
-
 
             if (!existFile.equals(inputFile)) {
 
 
-                //String  newDestinationPath = createNewNameForRepeatingFile(absolutePathName);
 
                 String name = createNewNameForRepeatingFile(inputFile.getName());
 
@@ -280,7 +218,7 @@ public class Model implements Runnable {
 
                 inputFile.createAbsolutePathName(destinationPathName);
 
-                // inputFile.setAbsolutePathWithFileName(newDestinationPath);
+
 
 
                 checkingForFilesWithDuplicateNames(inputFile);

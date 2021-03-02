@@ -22,6 +22,10 @@ public class Model implements Runnable {
     //------------------------------------------------------------------------------------------------------------
 
 
+    public boolean isCopySelected() {
+        return copySelected;
+    }
+
     public void setCopySelected(boolean copySelected) {
         this.copySelected = copySelected;
     }
@@ -220,7 +224,7 @@ public class Model implements Runnable {
 
                 inputFile.setName(newName);
 
-                inputFile.createAbsolutePathName(destinationPathName);
+                inputFile.createAbsolutePathName();
 
                 checkingForFilesWithDuplicateNames(inputFile);
 

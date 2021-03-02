@@ -24,6 +24,7 @@ public class Controller {
         viewer.setSourcePath(model.getSourcePathName());
         viewer.setDestinationPath(Model.getDestinationPathName());
         viewer.setMessage(model.getMessageToViewer());
+        viewer.setCopySelected(model.isCopySelected());
         SwingUtilities.invokeLater(viewer::runMainPage);
     }
 
@@ -35,6 +36,8 @@ public class Controller {
         model.setCopyingContinues(true);
         viewer.setLoading(true);
         viewer.setMessage("");
+        viewer.setCopySelected(model.isCopySelected());
+
 
         Thread modelThread = new Thread(model);
         modelThread.start();
@@ -111,5 +114,7 @@ public class Controller {
 
     public void setCopySelected(boolean b) {
         model.setCopySelected(b);
+viewer.setCopySelected(b);
+        viewer.runMainPage();
     }
 }

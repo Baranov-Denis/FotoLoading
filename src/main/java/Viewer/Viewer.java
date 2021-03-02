@@ -3,7 +3,6 @@ package Viewer;
 import Controller.Controller;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.io.File;
 
@@ -12,13 +11,22 @@ public class Viewer extends JFrame {
     static JFrame frame = new JFrame();
     static JPanel panel = new JPanel();
     final Controller controller;
-
+    public String message = "Ready";
     private String sourcePath;
     private String destinationPath;
-    public String message = "Ready";
     private boolean loading;
     private int progressBarValue;
+    private boolean copySelected;
 
+
+    public Viewer(Controller controller) {
+        this.controller = controller;
+        setFrameLocation();
+    }
+
+    public void setCopySelected(boolean copySelected) {
+        this.copySelected = copySelected;
+    }
 
     public void setMessage(String message) {
         this.message = message;
@@ -44,20 +52,15 @@ public class Viewer extends JFrame {
         this.sourcePath = sourcePath;
     }
 
-    public Viewer(Controller controller) {
-        this.controller = controller;
-        setFrameLocation();
-    }
-
-    private void setFrameLocation(){
+    private void setFrameLocation() {
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
         int screenHeight = screenSize.height;
         int screenWidth = screenSize.width;
-        frame.setLocation((screenWidth/2)-(340/2), (screenHeight/2)-(293));
+        frame.setLocation((screenWidth / 2) - (340 / 2), (screenHeight / 2) - (293));
     }
 
-    public void runMainPage(){
+    public void runMainPage() {
 
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -89,10 +92,9 @@ public class Viewer extends JFrame {
             if (temp == JFileChooser.APPROVE_OPTION) {
                 File directory = chooser.getSelectedFile();
                 String newSourcePath = directory.toString();
-                controller.setSourcePath(newSourcePath,destinationPath);
+                controller.setSourcePath(newSourcePath, destinationPath);
             }
         });
-
 
 
         JLabel textAboveDestinationButton = new JLabel("Choose destination path:");
@@ -107,40 +109,36 @@ public class Viewer extends JFrame {
             if (temp == JFileChooser.APPROVE_OPTION) {
                 File directory = chooser.getSelectedFile();
                 String newDestinationPath = directory.toString();
-                controller.setSourcePath(sourcePath,newDestinationPath);
+                controller.setSourcePath(sourcePath, newDestinationPath);
             }
         });
 
         JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
-        messageLabel.setPreferredSize(new Dimension(320,41));
+        messageLabel.setPreferredSize(new Dimension(320, 41));
         messageLabel.setBackground(MyColors.FONT);
-        messageLabel.setFont(new Font("San-Serif" ,Font.BOLD,20));
+        messageLabel.setFont(new Font("San-Serif", Font.BOLD, 20));
 
         ButtonGroup buttonGroup = new ButtonGroup();
 
 
         JRadioButton copyRadioButton = new MyRadioButton("Copy Photos");
-        copyRadioButton.addActionListener(e->{
-            controller.setCopySelected(true);
-        });
-        copyRadioButton.setSelected(true);
-
+        copyRadioButton.addActionListener(e -> controller.setCopySelected(true));
 
         JRadioButton moveRadioButton = new MyRadioButton("Move Photos");
-        moveRadioButton.addActionListener(e->{
-            controller.setCopySelected(false);
-        });
+        moveRadioButton.addActionListener(e -> controller.setCopySelected(false));
+
+
 
         buttonGroup.add(copyRadioButton);
         buttonGroup.add(moveRadioButton);
 
 
         MyButton executeCopyPhotoButton = new MyButton("Start Copying Photo");
-        executeCopyPhotoButton.setPreferredSize(new Dimension(320,100));
+        executeCopyPhotoButton.setPreferredSize(new Dimension(320, 100));
         executeCopyPhotoButton.addActionListener(e -> controller.runExecuteCopyPhoto());
 
         MyButton chancelButton = new MyButton("Chancel");
-        chancelButton.setPreferredSize(new Dimension(320,100));
+        chancelButton.setPreferredSize(new Dimension(320, 100));
         chancelButton.addActionListener(e -> controller.chancelProcess());
 
         JProgressBar progressBar = new JProgressBar();
@@ -151,7 +149,15 @@ public class Viewer extends JFrame {
         progressBar.setBackground(MyColors.FONT);
         progressBar.setForeground(MyColors.BUTTON_COLOR);
         progressBar.setBorderPainted(false);
-        progressBar.setFont(new Font("San-Serif" ,Font.BOLD,20));
+        progressBar.setFont(new Font("San-Serif", Font.BOLD, 20));
+
+        if(copySelected){
+            copyRadioButton.setSelected(true);
+            executeCopyPhotoButton.setText("Start Copying Photo");
+        }else {
+            moveRadioButton.setSelected(true);
+            executeCopyPhotoButton.setText("Start Moving Photo");
+        }
 
         panel.add(textAboveSourceButton);
         panel.add(changeSourcePath);
@@ -160,20 +166,17 @@ public class Viewer extends JFrame {
         panel.add(copyRadioButton);
         panel.add(moveRadioButton);
 
-        if(loading){
+        if (loading) {
             progressBar.setValue(progressBarValue);
-            panel.remove(executeCopyPhotoButton);
             panel.add(progressBar);
             panel.add(chancelButton);
-        }else {
+        } else {
             panel.add(messageLabel);
             panel.add(executeCopyPhotoButton);
         }
-        
+
         SwingUtilities.updateComponentTreeUI(frame);
     }
-
-
 
 
 }

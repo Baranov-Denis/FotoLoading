@@ -81,12 +81,12 @@ public class InputFile {
 
     public void createAllNeededPaths(String destinationPath) {
         createNewAbsolutePathWithoutFileName(destinationPath);
-        createNewAbsolutePathName(destinationPath);
+        createNewAbsolutePathName();
     }
 
 
-    public void createAbsolutePathName(String destinationPath) {
-        createNewAbsolutePathName(destinationPath);
+    public void createAbsolutePathName() {
+        createNewAbsolutePathName();
     }
 
 
@@ -129,14 +129,15 @@ public class InputFile {
 
 
 
-    private void createNewAbsolutePathName(String destinationPath) {
-        absolutePathWithFileName = destinationPath + "\\" + type + "\\" + year + "\\" + year + " " + month +
-                " " + day +
-                "\\" + name;
+    private void createNewAbsolutePathName() {
+        absolutePathWithFileName = absolutePathWithoutFileName + name;
     }
 
     private void createNewAbsolutePathWithoutFileName(String destinationPath) {
-        absolutePathWithoutFileName = destinationPath + "\\" + type + "\\" + year + "\\" + year + " " + month +
+
+        if (type.equals("MP4")||type.equals("MOV")||type.equals("M4V")||type.equals("3G2")||type.equals("3GP"))type = "VIDEO";
+
+        absolutePathWithoutFileName = destinationPath + "\\" + type + "\\" + year + "\\"  + month +
                 " " + day +
                 "\\";
     }
@@ -144,29 +145,29 @@ public class InputFile {
     private String replaceMonthName(String month) {
         switch (month) {
             case ("янв"):
-                return "Январь";
+                return "01 Январь";
             case ("февр"):
-                return "Февраль";
+                return "02 Февраль";
             case ("мар"):
-                return "Март";
+                return "03 Март";
             case ("апр"):
-                return "Апрель";
+                return "04 Апрель";
             case ("мая"):
-                return "Май";
+                return "05 Май";
             case ("июн"):
-                return "Июнь";
+                return "06 Июнь";
             case ("июл"):
-                return "Июль";
+                return "07 Июль";
             case ("авг"):
-                return "Август";
+                return "08 Август";
             case ("сент"):
-                return "Сентябрь";
+                return "09 Сентябрь";
             case ("окт"):
-                return "Октябрь";
+                return "10 Октябрь";
             case ("нояб"):
-                return "Ноябрь";
+                return "11 Ноябрь";
             case ("дек"):
-                return "Декабрь";
+                return "12 Декабрь";
         }
         return "Unknown";
     }

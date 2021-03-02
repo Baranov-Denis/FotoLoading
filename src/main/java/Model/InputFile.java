@@ -25,10 +25,8 @@ public class InputFile {
     }
 
     private void getInfoOfFile() {
-
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(this.getFile());
-
             for (Directory directory : metadata.getDirectories()) {
 
                 for (Tag tag : directory.getTags()) {
@@ -36,9 +34,9 @@ public class InputFile {
                     //-------------------------  Getting inputFile name. File name looks like fileName.jpg  ------
                     //--------------------------------------------------------------------------------------------
                     if (tag.toString().contains("[File] File Name")) {
-/*                        if (testName[1].equals("null")) {
-                            break;
-                        }*/
+
+                      // if (testName[1].equals("null")) {
+
                         setName(tag.toString().substring(18).trim());
 
                     }
@@ -63,11 +61,12 @@ public class InputFile {
                 }
 
             }
+            createAllNeededPaths(Model.getDestinationPathName());
         } catch (Exception empty) {
             // System.out.println("Exception in getInfoOfFile(File inputFile) method");
         }
 
-        createAllNeededPaths(Model.getDestinationPathName());
+
 
     }
 
@@ -135,7 +134,9 @@ public class InputFile {
 
     private void createNewAbsolutePathWithoutFileName(String destinationPath) {
 
-        if (type.equals("MP4")||type.equals("MOV")||type.equals("M4V")||type.equals("3G2")||type.equals("3GP"))type = "VIDEO";
+        if (type.equals("MP4")||type.equals("MOV")||type.equals("M4V")||type.equals("3G2")||type.equals("3GP")) {
+            type = "VIDEO";
+        }
 
         absolutePathWithoutFileName = destinationPath + "\\" + type + "\\" + year + "\\"  + month +
                 " " + day +

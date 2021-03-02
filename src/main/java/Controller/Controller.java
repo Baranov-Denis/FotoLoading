@@ -108,4 +108,8 @@ public class Controller {
         SwingUtilities.invokeLater(viewer::runMainPage);
 
     }
+
+    public void setCopySelected(boolean b) {
+        model.setCopySelected(b);
+    }
 }

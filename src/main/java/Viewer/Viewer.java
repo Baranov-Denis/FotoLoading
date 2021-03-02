@@ -3,6 +3,7 @@ package Viewer;
 import Controller.Controller;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.io.File;
 
@@ -17,6 +18,7 @@ public class Viewer extends JFrame {
     public String message = "Ready";
     private boolean loading;
     private int progressBarValue;
+
 
     public void setMessage(String message) {
         this.message = message;
@@ -59,14 +61,14 @@ public class Viewer extends JFrame {
 
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(346, 335);
+        frame.setSize(346, 380);
         frame.setTitle("PhotoLoader");
 
         frame.setLayout(new FlowLayout());
         frame.setAlwaysOnTop(true);
         frame.add(panel);
 
-        panel.setPreferredSize(new Dimension(340, 586));
+        panel.setPreferredSize(new Dimension(340, 380));
         panel.setBackground(MyColors.BACKGROUND);
         panel.removeAll();
 
@@ -114,6 +116,24 @@ public class Viewer extends JFrame {
         messageLabel.setBackground(MyColors.FONT);
         messageLabel.setFont(new Font("San-Serif" ,Font.BOLD,20));
 
+        ButtonGroup buttonGroup = new ButtonGroup();
+
+
+        JRadioButton copyRadioButton = new MyRadioButton("Copy Photos");
+        copyRadioButton.addActionListener(e->{
+            controller.setCopySelected(true);
+        });
+        copyRadioButton.setSelected(true);
+
+
+        JRadioButton moveRadioButton = new MyRadioButton("Move Photos");
+        moveRadioButton.addActionListener(e->{
+            controller.setCopySelected(false);
+        });
+
+        buttonGroup.add(copyRadioButton);
+        buttonGroup.add(moveRadioButton);
+
 
         MyButton executeCopyPhotoButton = new MyButton("Start Copying Photo");
         executeCopyPhotoButton.setPreferredSize(new Dimension(320,100));
@@ -137,6 +157,9 @@ public class Viewer extends JFrame {
         panel.add(changeSourcePath);
         panel.add(textAboveDestinationButton);
         panel.add(changeDestinationPath);
+        panel.add(copyRadioButton);
+        panel.add(moveRadioButton);
+
         if(loading){
             progressBar.setValue(progressBarValue);
             panel.remove(executeCopyPhotoButton);

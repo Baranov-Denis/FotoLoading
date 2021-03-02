@@ -25,15 +25,7 @@ public class InputFile {
     }
 
     private void getInfoOfFile() {
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
+
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(this.getFile());
 

@@ -15,11 +15,16 @@ public class Model implements Runnable {
     private long sizeOfSourceFilesForCopy;
     private String messageToViewer;
     private int percentOfDone;
+    private boolean copySelected = true;
 
 
     //--------------------------------------------------- Getters and Setters ------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
+
+    public void setCopySelected(boolean copySelected) {
+        this.copySelected = copySelected;
+    }
 
     public static void setDestinationPathName(String destinationPathName) {
         Model.destinationPathName = destinationPathName;
@@ -130,9 +135,10 @@ public class Model implements Runnable {
 
         if (listOfRawInputFiles.length != 0) {
             for (File rawInputFile : listOfRawInputFiles) {
-                //This check need for deleting strange temporary files.
+
                 if (!rawInputFile.isFile()) {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
+                    //This check need for deleting strange temporary files.
                 } else if (rawInputFile.length() > 50000) {
                     getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
                     setSizeOfSourceFilesForCopy(rawInputFile);
@@ -179,7 +185,12 @@ public class Model implements Runnable {
             checkingForFilesWithDuplicateNames(inputFile);
 
 
-            writeFileToDestination(inputFile);
+            if (copySelected) {
+
+                copyFileToDestination(inputFile);
+            }else {
+                moveFileToDestination(inputFile);
+            }
         }
     }
 
@@ -240,11 +251,21 @@ public class Model implements Runnable {
     }
 
 
-    private void writeFileToDestination(InputFile inputFile) {
+    private void copyFileToDestination(InputFile inputFile) {
         Path sourcePath = inputFile.getFile().toPath();
         Path destinationPath = Paths.get(inputFile.getAbsolutePathWithFileName());
         try {
             Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException exception) {
+            System.out.println("Writing file failed");
+        }
+    }
+
+    private void moveFileToDestination(InputFile inputFile) {
+        Path sourcePath = inputFile.getFile().toPath();
+        Path destinationPath = Paths.get(inputFile.getAbsolutePathWithFileName());
+        try {
+            Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException exception) {
             System.out.println("Writing file failed");
         }

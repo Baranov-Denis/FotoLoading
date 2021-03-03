@@ -137,6 +137,7 @@ public class Model implements Runnable {
 
         File[] listOfRawInputFiles = getListOfInputFiles(sourcePath);
 
+
         if (listOfRawInputFiles.length != 0) {
             for (File rawInputFile : listOfRawInputFiles) {
 
@@ -144,6 +145,7 @@ public class Model implements Runnable {
                     getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
                     //This check need for deleting strange temporary files.
                 } else if (rawInputFile.length() > 50000) {
+                    System.out.println(rawInputFile.getAbsolutePath());
                     getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
                     setSizeOfSourceFilesForCopy(rawInputFile);
                 }

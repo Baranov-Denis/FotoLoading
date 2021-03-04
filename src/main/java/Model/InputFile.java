@@ -19,6 +19,7 @@ public class InputFile {
     private String absolutePathWithFileName;
     private String absolutePathWithoutFileName;
 
+
     public InputFile(File file) {
         this.file = file;
         getInfoOfFile();
@@ -26,7 +27,7 @@ public class InputFile {
 
     private void getInfoOfFile() {
         try {
-            Metadata metadata = ImageMetadataReader.readMetadata(this.getFile());
+            Metadata  metadata = ImageMetadataReader.readMetadata(this.getFile());
             for (Directory directory : metadata.getDirectories()) {
 
                 for (Tag tag : directory.getTags()) {
@@ -62,8 +63,9 @@ public class InputFile {
 
             }
             createAllNeededPaths(Model.getDestinationPathName());
+
         } catch (Exception empty) {
-            // System.out.println("Exception in getInfoOfFile(File inputFile) method");
+             System.out.println("Exception in getInfoOfFile(File inputFile) method");
         }
 
 

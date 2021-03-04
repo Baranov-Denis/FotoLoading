@@ -1,26 +1,45 @@
 package Model;
 
 
-
 import java.io.*;
 import java.nio.file.*;
-import java.util.ArrayList;
+import java.util.Objects;
 
 public class Model implements Runnable {
-    private ArrayList<InputFile> listOfSourceInputFilesForCopying;
-    private String sourcePathName;
+
     private static String destinationPathName;
+    private String sourcePathName;
     private boolean copyingContinues = true;
-    private int numberOfCopiedFiles;
-    private long sizeOfSourceFilesForCopy;
     private String messageToViewer;
     private int percentOfDone;
     private boolean copySelected = true;
+
+    private long allFilesOfInputFolderSize;
+    private long copiedFilesSize;
+
+
 
 
     //--------------------------------------------------- Getters and Setters ------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
+    public static String getDestinationPathName() {
+        return destinationPathName;
+    }
+
+    public static void setDestinationPathName(String destinationPathName) {
+        Model.destinationPathName = destinationPathName;
+    }
+
+
+
+    public long getCopiedFilesSize() {
+        return copiedFilesSize;
+    }
+
+    public void setCopiedFilesSize(long copiedFilesSize) {
+        this.copiedFilesSize = copiedFilesSize;
+    }
 
     public boolean isCopySelected() {
         return copySelected;
@@ -28,10 +47,6 @@ public class Model implements Runnable {
 
     public void setCopySelected(boolean copySelected) {
         this.copySelected = copySelected;
-    }
-
-    public static void setDestinationPathName(String destinationPathName) {
-        Model.destinationPathName = destinationPathName;
     }
 
     public int getPercentOfDone() {
@@ -50,8 +65,8 @@ public class Model implements Runnable {
         this.messageToViewer = messageToViewer;
     }
 
-    public void setNumberOfCopiedFiles(int numberOfCopiedFiles) {
-        this.numberOfCopiedFiles = numberOfCopiedFiles;
+    public boolean isCopyingContinues() {
+        return copyingContinues;
     }
 
     public void setCopyingContinues(boolean copyingContinues) {
@@ -66,13 +81,11 @@ public class Model implements Runnable {
         this.sourcePathName = sourcePathName;
     }
 
-    public static String getDestinationPathName() {
-        return destinationPathName;
-    }
-
 
     //----------------------------------------------- Read and Write Settings ------------------------------------
     //------------------------------------------------------------------------------------------------------------
+
+
 
     public void readSettings() {
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream("setting.txt"))) {
@@ -104,22 +117,14 @@ public class Model implements Runnable {
 
     public void run() {
 
-        setPercentOfDone(0); //set percent of done = 0 for progress bar = 0%
 
-        listOfSourceInputFilesForCopying = new ArrayList<>(); //Create it here. Because other case in next copying
-        // new files will be added to this list and all of them will be processed again.
+        allFilesOfInputFolderSize = calculateSourceFolderSize(new File(sourcePathName));
 
-        getListOfRawInputFilesFromSourcePath(sourcePathName);//We get input files. They have only destination Path
-        // Name. No other information.
 
         if (thereIsEnoughFreeSpaceForCopying()) {
-            for (InputFile file : listOfSourceInputFilesForCopying) {
-                if (copyingContinues) {
-                    copyingFile(file);
-                    getProcessOfDone();
-                    numberOfCopiedFiles++;
-                }
-            }
+            getListOfRawInputFilesFromSourcePath(sourcePathName);//We get input files. They have only destination Path
+            // Name. No other information.
+
         } else {
             setPercentOfDone(100);
             setMessageToViewer("Space is not Enough");
@@ -127,41 +132,59 @@ public class Model implements Runnable {
         }
         setPercentOfDone(100);
         setMessageToViewer("All Photo were copy");
+        setCopiedFilesSize(0);
+    }
+
+
+
+    public long calculateSourceFolderSize(File directory) {
+        long length = 0;
+            for (File file : Objects.requireNonNull(directory.listFiles())) {
+            if (file.isFile())
+                length += file.length();
+            else
+                length += calculateSourceFolderSize(file);
+        }
+        return length;
     }
 
 
     //--------------------------------------- Get List Of Input Files --------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
+
+
+
     private void getListOfRawInputFilesFromSourcePath(String sourcePath) {
 
-        File[] listOfRawInputFiles = getListOfInputFiles(sourcePath);
+       File[] arrayOfIncomingFiles = getArrayOfInputFiles(sourcePath);
 
+        if (arrayOfIncomingFiles.length != 0 ) {
+            for (File file : arrayOfIncomingFiles) {
 
-        if (listOfRawInputFiles.length != 0) {
-            for (File rawInputFile : listOfRawInputFiles) {
+                setCopiedFilesSize(getCopiedFilesSize() + file.length());
+              //  calculatePercentOfDone();
 
-                if (!rawInputFile.isFile()) {
-                    getListOfRawInputFilesFromSourcePath(rawInputFile.getAbsolutePath());
+                if (!file.isFile() && isCopyingContinues()) {
+                    getListOfRawInputFilesFromSourcePath(file.getAbsolutePath());
                     //This check need for deleting strange temporary files.
-                } else if (rawInputFile.length() > 50000) {
-                    System.out.println(rawInputFile.getAbsolutePath());
-                    getListOfSourceInputFilesForCopying(new InputFile(rawInputFile));
-                    setSizeOfSourceFilesForCopy(rawInputFile);
+                } else if (file.length() > 50000 && isCopyingContinues()) {
+
+                   try {
+                       startCopyingFile(new InputFile(file));
+                   }catch (OutOfMemoryError e){
+                       System.out.println("Out Of Memory Error!!!!!");
+                   }
+                    calculatePercentOfDone();
                 }
+
             }
+
         }
+
     }
 
-    private void getListOfSourceInputFilesForCopying(InputFile inputFile) {
-        listOfSourceInputFilesForCopying.add(inputFile);
-    }
-
-    private void setSizeOfSourceFilesForCopy(File file) {
-        sizeOfSourceFilesForCopy += file.length();
-    }
-
-    private File[] getListOfInputFiles(String sourcePath) {
+    private File[] getArrayOfInputFiles(String sourcePath) {
         File sourceFolder = new File(sourcePath);
         return sourceFolder.listFiles();
     }
@@ -173,7 +196,8 @@ public class Model implements Runnable {
     private boolean thereIsEnoughFreeSpaceForCopying() {
         File destFolder = new File(destinationPathName);
         long destinationFreeSize = destFolder.getFreeSpace();
-        return destinationFreeSize > sizeOfSourceFilesForCopy;//we got sizeOfSourceFilesForCopy in
+
+        return destinationFreeSize > allFilesOfInputFolderSize;//we got sizeOfSourceFilesForCopy in
         // setSizeOfSourceFilesForCopy(File file) when getting list of raw input files
     }
 
@@ -181,7 +205,7 @@ public class Model implements Runnable {
     //-------------------------------------- Copying File --------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-    private void copyingFile(InputFile inputFile) {
+    private void startCopyingFile(InputFile inputFile) {
 
         if (!(inputFile.getName() == null)) {
 
@@ -192,9 +216,8 @@ public class Model implements Runnable {
 
 
             if (copySelected) {
-
                 copyFileToDestination(inputFile);
-            }else {
+            } else {
                 moveFileToDestination(inputFile);
             }
         }
@@ -281,8 +304,8 @@ public class Model implements Runnable {
     //-------------------------------------- Get Percent of Done -------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
-    public void getProcessOfDone() {
-        setPercentOfDone((numberOfCopiedFiles * 100) / listOfSourceInputFilesForCopying.size());
+    public void calculatePercentOfDone() {
+        setPercentOfDone((int) ((getCopiedFilesSize() * 100) / allFilesOfInputFolderSize));
     }
 
 

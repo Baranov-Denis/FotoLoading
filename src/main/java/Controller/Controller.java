@@ -55,8 +55,7 @@ public class Controller {
             }
 
             protected void done() {
-
-                model.setNumberOfCopiedFiles(0);
+               // model.setCopiedFilesSize(0);
                 viewer.setLoading(false);
                 viewer.setMessage(model.getMessageToViewer());
 

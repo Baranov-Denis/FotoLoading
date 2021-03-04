@@ -27,7 +27,13 @@ public class InputFile {
 
     private void getInfoOfFile() {
         try {
-            Metadata  metadata = ImageMetadataReader.readMetadata(this.getFile());
+            Metadata metadata;
+            try {
+                metadata = ImageMetadataReader.readMetadata(this.getFile());
+            } catch (OutOfMemoryError e) {
+                System.out.println("OutOfMemory error file " + this.getFile());
+                return;
+            }
             for (Directory directory : metadata.getDirectories()) {
 
                 for (Tag tag : directory.getTags()) {
@@ -36,7 +42,7 @@ public class InputFile {
                     //--------------------------------------------------------------------------------------------
                     if (tag.toString().contains("[File] File Name")) {
 
-                      // if (testName[1].equals("null")) {
+                        // if (testName[1].equals("null")) {
 
                         setName(tag.toString().substring(18).trim());
 
@@ -65,9 +71,8 @@ public class InputFile {
             createAllNeededPaths(Model.getDestinationPathName());
 
         } catch (Exception empty) {
-             System.out.println("Exception in getInfoOfFile(File inputFile) method");
+            System.out.println("Exception in getInfoOfFile(File inputFile) method");
         }
-
 
 
     }
@@ -129,18 +134,17 @@ public class InputFile {
     }
 
 
-
     private void createNewAbsolutePathName() {
         absolutePathWithFileName = absolutePathWithoutFileName + name;
     }
 
     private void createNewAbsolutePathWithoutFileName(String destinationPath) {
 
-        if (type.equals("MP4")||type.equals("MOV")||type.equals("M4V")||type.equals("3G2")||type.equals("3GP")) {
+        if (type.equals("MP4") || type.equals("MOV") || type.equals("M4V") || type.equals("3G2") || type.equals("3GP")) {
             type = "VIDEO";
         }
 
-        absolutePathWithoutFileName = destinationPath + "\\" + type + "\\" + year + "\\"  + month +
+        absolutePathWithoutFileName = destinationPath + "\\" + type + "\\" + year + "\\" + month +
                 " " + day +
                 "\\";
     }

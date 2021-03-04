@@ -121,7 +121,7 @@ public class Model implements Runnable {
         allFilesOfInputFolderSize = calculateSourceFolderSize(new File(sourcePathName));
 
 
-        if (thereIsEnoughFreeSpaceForCopying()) {
+        if (thereIsEnoughFreeSpaceForCopying() || !copySelected) {
             getListOfRawInputFilesFromSourcePath(sourcePathName);//We get input files. They have only destination Path
             // Name. No other information.
 
@@ -168,13 +168,15 @@ public class Model implements Runnable {
                 if (!file.isFile() && isCopyingContinues()) {
                     getListOfRawInputFilesFromSourcePath(file.getAbsolutePath());
                     //This check need for deleting strange temporary files.
-                } else if (file.length() > 50000 && isCopyingContinues()) {
+                    //TODO need fix add _MG_6032.CR2.cof size > 50000
 
-                   try {
+                } else if (file.length() > 50000 && isCopyingContinues()) {
+                   // System.out.println(file.getAbsolutePath());
+                  // try {
                        startCopyingFile(new InputFile(file));
-                   }catch (OutOfMemoryError e){
-                       System.out.println("Out Of Memory Error!!!!!");
-                   }
+                 //  }catch (OutOfMemoryError e){
+                    //   System.out.println("Out Of Memory Error!!!!!");
+                 //  }
                     calculatePercentOfDone();
                 }
 

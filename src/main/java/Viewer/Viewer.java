@@ -61,7 +61,6 @@ public class Viewer extends JFrame {
     }
 
     public void runMainPage() {
-
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(346, 380);

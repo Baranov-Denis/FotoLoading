@@ -1,0 +1,8 @@
+07.03.2021  at  00:29:07 ---- <<< Start >>>
+07.03.2021  at  00:29:07 ---- E:\Фото\Canon 1100\New canon\2014\2014-01-01\-Правка-2.tif  <<< OutOfMemory error in metaDataExtractor >>>
+07.03.2021  at  00:29:07 ---- E:\Фото\Canon 1100\New canon\2014\2014-03-16\-Правка-19.tif  <<< OutOfMemory error in metaDataExtractor >>>
+07.03.2021  at  00:29:07 ---- E:\Фото\Canon 1100\New canon\2014\2014-03-16\-Правка-22.tif  <<< OutOfMemory error in metaDataExtractor >>>
+07.03.2021  at  00:29:08 ---- E:\Фото\Canon 1100\New canon\2014\2014-05-24\-Правка-17.tif  <<< OutOfMemory error in metaDataExtractor >>>
+07.03.2021  at  00:29:09 ---- E:\Фото\Canon 1100\New canon\2014\2014-05-26\Панорама_без_названия1.tif  <<< OutOfMemory error in metaDataExtractor >>>
+07.03.2021  at  00:29:09 ---- E:\Фото\Canon 1100\New canon\2014\2014-06-11\-Правка-7.tif  <<< OutOfMemory error in metaDataExtractor >>>
+07.03.2021  at  00:29:09 ---- <<< End >>>

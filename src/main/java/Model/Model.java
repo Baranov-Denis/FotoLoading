@@ -112,23 +112,23 @@ public class Model implements Runnable {
 
 
     public void run() {
+        Log.write("<<< Start >>>");
+            setPercentOfDone(0);//If doesn't set zero then in some cases progress scale won't be showed.
+            allFilesOfInputFolderSize = calculateSourceFolderSize(new File(sourcePathName));
 
 
-        allFilesOfInputFolderSize = calculateSourceFolderSize(new File(sourcePathName));
-
-
-        if (thereIsEnoughFreeSpaceForCopying() || !copySelected) {
-            getListOfRawInputFilesFromSourcePath(sourcePathName);//We get input files. They have only destination Path
-            // Name. No other information.
-
-        } else {
+            if (thereIsEnoughFreeSpaceForCopying() || !copySelected) {
+                startProcess(sourcePathName);//We get input files.
+            } else {
+                setPercentOfDone(100);
+                setMessageToViewer("Space is not Enough");
+                return;
+            }
             setPercentOfDone(100);
-            setMessageToViewer("Space is not Enough");
-            return;
-        }
-        setPercentOfDone(100);
-        setMessageToViewer("All Photo were copy");
-        setCopiedFilesSize(0);
+            setMessageToViewer("All Photo were copy");
+            setCopiedFilesSize(0);
+
+        Log.write("<<< End >>>");
     }
 
 
@@ -148,7 +148,7 @@ public class Model implements Runnable {
     //------------------------------------------------------------------------------------------------------------
 
 
-    private void getListOfRawInputFilesFromSourcePath(String sourcePath) {
+    private void startProcess(String sourcePath) {
 
         File[] arrayOfIncomingFiles = getArrayOfInputFiles(sourcePath);
 
@@ -159,12 +159,12 @@ public class Model implements Runnable {
                 //  calculatePercentOfDone();
 
                 if (!file.isFile() && isCopyingContinues()) {
-                    getListOfRawInputFilesFromSourcePath(file.getAbsolutePath());
+                    startProcess(file.getAbsolutePath());
                     //This check need for deleting strange temporary files.
 
 
-                } else if (file.length() > 50000 && !file.getAbsolutePath().contains("cof") && isCopyingContinues()) {
-                    startCopyingFile(new InputFile(file));
+                } else if (/*file.length() > 50000 && !file.getAbsolutePath().contains("cof") &&*/isCopyingContinues()) {
+                        startCopyingFile(new InputFile(file));
                     calculatePercentOfDone();
                 }
 
@@ -198,7 +198,6 @@ public class Model implements Runnable {
     private void startCopyingFile(InputFile inputFile) {
 
         if (!(inputFile.getName() == null)) {
-
             checkingAndCreatingDirectory(inputFile.getAbsolutePathWithoutFileName()); //Checking and creating Folder for
             // Input File
 

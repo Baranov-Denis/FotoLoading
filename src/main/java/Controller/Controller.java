@@ -41,9 +41,12 @@ public class Controller {
 
         Thread modelThread = new Thread(model);
         modelThread.start();
-       try {
+
+
+        try {
             Thread.sleep(10);
         } catch (Exception empty) {
+
         }
 
 
@@ -54,23 +57,24 @@ public class Controller {
                 return null;
             }
 
+
             protected void done() {
-               // model.setCopiedFilesSize(0);
                 viewer.setLoading(false);
                 viewer.setMessage(model.getMessageToViewer());
-
                 SwingUtilities.invokeLater(viewer::runMainPage);
-
             }
+
+
         }.execute();
+
 
     }
 
     //-------------------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------------------
 
-    private boolean isCopyingDone(){
-       return model.getPercentOfDone() == 100;
+    private boolean isCopyingDone() {
+        return model.getPercentOfDone() == 100;
     }
 
 
@@ -87,6 +91,7 @@ public class Controller {
 
     private void updateProgressBar() {
         while (viewer.isLoading()) {
+
             if (isCopyingDone()) viewer.setLoading(false);
             viewer.setProgressBarValue(model.getPercentOfDone());
             SwingUtilities.invokeLater(viewer::runMainPage);
@@ -113,7 +118,7 @@ public class Controller {
 
     public void setCopySelected(boolean b) {
         model.setCopySelected(b);
-viewer.setCopySelected(b);
+        viewer.setCopySelected(b);
         viewer.runMainPage();
     }
 }

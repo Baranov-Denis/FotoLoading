@@ -31,6 +31,7 @@ public class InputFile {
             try {
                 metadata = ImageMetadataReader.readMetadata(this.getFile());
             } catch (OutOfMemoryError e) {
+                Log.write(this.getFile().getAbsolutePath());
                 System.out.println("OutOfMemory error file " + this.getFile());
                 return;
             }

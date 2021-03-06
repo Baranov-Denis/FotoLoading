@@ -18,8 +18,6 @@ public class Model implements Runnable {
     private long copiedFilesSize;
 
 
-
-
     //--------------------------------------------------- Getters and Setters ------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
@@ -30,7 +28,6 @@ public class Model implements Runnable {
     public static void setDestinationPathName(String destinationPathName) {
         Model.destinationPathName = destinationPathName;
     }
-
 
 
     public long getCopiedFilesSize() {
@@ -86,7 +83,6 @@ public class Model implements Runnable {
     //------------------------------------------------------------------------------------------------------------
 
 
-
     public void readSettings() {
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream("setting.txt"))) {
             sourcePathName = inputStream.readUTF();
@@ -136,10 +132,9 @@ public class Model implements Runnable {
     }
 
 
-
     public long calculateSourceFolderSize(File directory) {
         long length = 0;
-            for (File file : Objects.requireNonNull(directory.listFiles())) {
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
             if (file.isFile())
                 length += file.length();
             else
@@ -153,30 +148,23 @@ public class Model implements Runnable {
     //------------------------------------------------------------------------------------------------------------
 
 
-
-
     private void getListOfRawInputFilesFromSourcePath(String sourcePath) {
 
-       File[] arrayOfIncomingFiles = getArrayOfInputFiles(sourcePath);
+        File[] arrayOfIncomingFiles = getArrayOfInputFiles(sourcePath);
 
-        if (arrayOfIncomingFiles.length != 0 ) {
+        if (arrayOfIncomingFiles.length != 0) {
             for (File file : arrayOfIncomingFiles) {
 
                 setCopiedFilesSize(getCopiedFilesSize() + file.length());
-              //  calculatePercentOfDone();
+                //  calculatePercentOfDone();
 
                 if (!file.isFile() && isCopyingContinues()) {
                     getListOfRawInputFilesFromSourcePath(file.getAbsolutePath());
                     //This check need for deleting strange temporary files.
-                    //TODO need fix add _MG_6032.CR2.cof size > 50000
 
-                } else if (file.length() > 50000 && isCopyingContinues()) {
-                   // System.out.println(file.getAbsolutePath());
-                  // try {
-                       startCopyingFile(new InputFile(file));
-                 //  }catch (OutOfMemoryError e){
-                    //   System.out.println("Out Of Memory Error!!!!!");
-                 //  }
+
+                } else if (file.length() > 50000 && !file.getAbsolutePath().contains("cof") && isCopyingContinues()) {
+                    startCopyingFile(new InputFile(file));
                     calculatePercentOfDone();
                 }
 

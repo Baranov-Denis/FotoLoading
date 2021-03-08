@@ -4,10 +4,10 @@ import Controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 
-public class Viewer extends JFrame {
-
+public class Viewer extends JFrame implements KeyListener  {
     static JFrame frame = new JFrame();
     static JPanel panel = new JPanel();
     final Controller controller;
@@ -75,6 +75,7 @@ public class Viewer extends JFrame {
         panel.removeAll();
 
 
+
         ImageIcon img = new ImageIcon("H:\\FotoLoading\\photo.png");
         frame.setIconImage(img.getImage());
 
@@ -82,35 +83,13 @@ public class Viewer extends JFrame {
 
 
         MyButton changeSourcePath = new MyButton(sourcePath);
-        changeSourcePath.addActionListener(e -> {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setCurrentDirectory(new File(sourcePath));
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
-            int temp = chooser.showDialog(panel, "Choose input Directory");
-            if (temp == JFileChooser.APPROVE_OPTION) {
-                File directory = chooser.getSelectedFile();
-                String newSourcePath = directory.toString();
-                controller.setSourcePath(newSourcePath, destinationPath);
-            }
-        });
+        changeSourcePath.addActionListener(this::chooseSourcePath);
 
 
         JLabel textAboveDestinationButton = new JLabel("Choose destination path:");
 
         MyButton changeDestinationPath = new MyButton(destinationPath);
-        changeDestinationPath.addActionListener(e -> {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setCurrentDirectory(new File(destinationPath));
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
-            int temp = chooser.showDialog(panel, "Choose output Directory");
-            if (temp == JFileChooser.APPROVE_OPTION) {
-                File directory = chooser.getSelectedFile();
-                String newDestinationPath = directory.toString();
-                controller.setSourcePath(sourcePath, newDestinationPath);
-            }
-        });
+        changeDestinationPath.addActionListener(this::chooseDestinationPath);
 
         JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
         messageLabel.setPreferredSize(new Dimension(320, 41));
@@ -125,7 +104,6 @@ public class Viewer extends JFrame {
 
         JRadioButton moveRadioButton = new MyRadioButton("Move Photos");
         moveRadioButton.addActionListener(e -> controller.setCopySelected(false));
-
 
 
         buttonGroup.add(copyRadioButton);
@@ -150,13 +128,21 @@ public class Viewer extends JFrame {
         progressBar.setBorderPainted(false);
         progressBar.setFont(new Font("San-Serif", Font.BOLD, 20));
 
-        if(copySelected){
+        if (copySelected) {
             copyRadioButton.setSelected(true);
             executeCopyPhotoButton.setText("Start Copying Photo");
-        }else {
+        } else {
             moveRadioButton.setSelected(true);
             executeCopyPhotoButton.setText("Start Moving Photo");
         }
+
+
+        frame.setFocusable(true);
+        frame.addKeyListener(this);
+
+        panel.setFocusable(false);
+        changeSourcePath.setFocusable(false);
+        changeDestinationPath.setFocusable(false);
 
         panel.add(textAboveSourceButton);
         panel.add(changeSourcePath);
@@ -177,5 +163,50 @@ public class Viewer extends JFrame {
         SwingUtilities.updateComponentTreeUI(frame);
     }
 
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode()== KeyEvent.VK_ENTER){
+            if(!loading) {
+                controller.runExecuteCopyPhoto();
+            }
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
+
+
+    private void chooseSourcePath(ActionEvent e) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File(sourcePath));
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int temp = chooser.showDialog(panel, "Choose input Directory");
+        if (temp == JFileChooser.APPROVE_OPTION) {
+            File directory = chooser.getSelectedFile();
+            String newSourcePath = directory.toString();
+            controller.setSourcePath(newSourcePath, destinationPath);
+        }
+    }
+
+    private void chooseDestinationPath(ActionEvent e){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File(destinationPath));
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int temp = chooser.showDialog(panel, "Choose output Directory");
+        if (temp == JFileChooser.APPROVE_OPTION) {
+            File directory = chooser.getSelectedFile();
+            String newDestinationPath = directory.toString();
+            controller.setSourcePath(sourcePath, newDestinationPath);
+        }
+    }
 
 }

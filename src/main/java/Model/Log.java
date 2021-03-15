@@ -7,7 +7,7 @@ import java.util.Date;
 public class Log {
 
     public static void write(String log){
-        try(FileWriter fileWriter = new FileWriter("wrongFiles.log" , true)){
+        try(FileWriter fileWriter = new FileWriter("resultOfCopying.log" , true)){
             fileWriter.write(getCurrentDate() + " ---- " + log + "\r\n");
         } catch (Exception e) {
             e.printStackTrace();

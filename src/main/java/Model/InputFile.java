@@ -31,10 +31,13 @@ public class InputFile {
 
 
             //Here checking existing large files like "TIF". When i tried read Metadata those files, i got OutOfMemory error. It issue in metadata extractor framework.
-            if (!this.getFile().getAbsolutePath().contains(".tif") && this.getFile().length() < 700000000) {
+            if (!this.getFile().getAbsolutePath().contains(".tif")) {
+                metadata = ImageMetadataReader.readMetadata(this.getFile());
+            } else if (this.getFile().getAbsolutePath().contains(".tif") && this.getFile().length() < 500000000 && this.getFile().length() > 50000) {
                 metadata = ImageMetadataReader.readMetadata(this.getFile());
             } else if (this.getFile().length() > 5000000) {
-                Log.write(this.getFile().getAbsolutePath() + "  <<< OutOfMemory error in metaDataExtractor >>>");
+                Log.write(" I couldn't read the tif metadata " + this.getFile().getAbsolutePath() + "  " + (this.getFile().length())/1000000 +
+                        " mb.");
             }
 /**
  * ?????????????????????????????????????????????????????????

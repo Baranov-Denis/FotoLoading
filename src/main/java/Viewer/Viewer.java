@@ -67,7 +67,7 @@ public class Viewer extends JFrame implements KeyListener  {
         frame.setTitle("PhotoLoader");
 
         frame.setLayout(new FlowLayout());
-        frame.setAlwaysOnTop(true);
+        frame.setAlwaysOnTop(false);
         frame.add(panel);
 
         panel.setPreferredSize(new Dimension(340, 380));

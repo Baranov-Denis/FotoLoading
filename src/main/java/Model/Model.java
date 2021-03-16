@@ -198,7 +198,7 @@ public class Model implements Runnable {
     private void startCopyingFile(InputFile inputFile) {
 
         if (!(inputFile.getName() == null)) {
-            checkingAndCreatingDirectory(inputFile.getAbsolutePathWithoutFileName()); //Checking and creating Folder for
+            checkingAndCreatingDirectory(inputFile.getAbsolutePathOnlyFolders()); //Checking and creating Folder for
             // Input File
 
             checkingForFilesWithDuplicateNames(inputFile);

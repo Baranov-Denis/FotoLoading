@@ -164,7 +164,7 @@ public class InputFile {
     private void createNewAbsolutePathWithoutFileName(String destinationPath) {
 
         //Creating one folder for all type of video.
-        if (type.equals("MP4") || type.equals("MOV") || type.equals("M4V") || type.equals("3G2") || type.equals("3GP")) {
+        if (type.equals("MP4") || type.equals("MOV") || type.equals("M4V") || type.equals("3G2") || type.equals("3GP") || type.equals("AVI")) {
             type = "VIDEO";
         }
 

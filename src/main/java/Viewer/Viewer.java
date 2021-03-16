@@ -22,6 +22,17 @@ public class Viewer extends JFrame implements KeyListener  {
     public Viewer(Controller controller) {
         this.controller = controller;
         setFrameLocation();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setSize(346, 380);
+        frame.setTitle("PhotoLoader");
+
+        frame.setLayout(new FlowLayout());
+        frame.setAlwaysOnTop(false);
+        frame.add(panel);
+
+        panel.setPreferredSize(new Dimension(340, 380));
+        panel.setBackground(MyColors.BACKGROUND);
     }
 
     public void setCopySelected(boolean copySelected) {
@@ -57,24 +68,13 @@ public class Viewer extends JFrame implements KeyListener  {
         Dimension screenSize = kit.getScreenSize();
         int screenHeight = screenSize.height;
         int screenWidth = screenSize.width;
-        frame.setLocation((screenWidth / 2) - (340 / 2), (screenHeight / 2) - (293));
+        frame.setLocation((screenWidth - 360) , (screenHeight - 450) );
+
     }
 
     public void runMainPage() {
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(346, 380);
-        frame.setTitle("PhotoLoader");
 
-        frame.setLayout(new FlowLayout());
-        frame.setAlwaysOnTop(false);
-        frame.add(panel);
-
-        panel.setPreferredSize(new Dimension(340, 380));
-        panel.setBackground(MyColors.BACKGROUND);
         panel.removeAll();
-
-
 
         ImageIcon img = new ImageIcon("H:\\FotoLoading\\photo.png");
         frame.setIconImage(img.getImage());

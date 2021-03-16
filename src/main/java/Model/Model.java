@@ -29,7 +29,6 @@ public class Model implements Runnable {
         Model.destinationPathName = destinationPathName;
     }
 
-
     public long getCopiedFilesSize() {
         return copiedFilesSize;
     }

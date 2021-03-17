@@ -18,6 +18,11 @@
 *.zip
 *.tar.gz
 *.rar
+setting.txt
+*.txt
+target/
+
+
 
 
 

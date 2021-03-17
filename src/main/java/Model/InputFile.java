@@ -82,23 +82,22 @@ public class InputFile {
     private void getInfoOfFile() {
         try {
 
-            Metadata metadata = null;
+            Metadata metadata;
 
             //If length of file smaller than 50000 that its not a photo.
-            if(this.getFile().length() < 50000)return;
+            if (this.getFile().length() < 50000) return;
 
             //Here checking existing large files like "TIF". When i tried read Metadata those files, i got OutOfMemory error. It issue in metadata extractor framework.
-            //checking if this file is tif then we need  more checks.
-            if (!this.getFile().getAbsolutePath().contains(".tif")) {
-                metadata = ImageMetadataReader.readMetadata(this.getFile());
-                //Checking tif file.
-                //If length of file larger than 500000000 then metadata won't be able to read
-            } else if (this.getFile().getAbsolutePath().contains(".tif") && this.getFile().length() < 500000000) {
+            //If length of file larger than 500000000 then metadata won't be able to read
+            if (this.getFile().length() < 500000000) {
                 metadata = ImageMetadataReader.readMetadata(this.getFile());
                 //If metadata didn't read then file path will be write to log file
-            } else if (this.getFile().length() > 5000000) {
-                Log.write(" I couldn't read the tif metadata " + this.getFile().getAbsolutePath() + "  " + (this.getFile().length())/1000000 +
-                        " mb.");
+            } else if (this.getFile().length() > 5000000 && !this.getFile().getAbsolutePath().contains(".tif")) {
+                metadata = ImageMetadataReader.readMetadata(this.getFile());
+            } else {
+                createPathForUnsortedFiles();
+                createAllNeededPaths(Model.getDestinationPathName());
+                return;
             }
 
 
@@ -110,7 +109,7 @@ public class InputFile {
                     //-------------------------  Getting inputFile name. File name looks like fileName.jpg  ------
                     //--------------------------------------------------------------------------------------------
                     if (tag.toString().contains("[File] File Name")) {
-                            setName(tag.toString().substring(18).trim());
+                        setName(tag.toString().substring(18).trim());
                     }
 
 
@@ -136,7 +135,10 @@ public class InputFile {
             createAllNeededPaths(Model.getDestinationPathName());
 
         } catch (Exception empty) {
-        // empty.printStackTrace();
+            //All files will be placed to folder unsorted. But it might be not photos or videos.
+                createPathForUnsortedFiles();
+                createAllNeededPaths(Model.getDestinationPathName());
+
         }
 
 
@@ -146,8 +148,16 @@ public class InputFile {
     //------------------------------------------- Other methods ---------------------------------------------------
     //-------------------------------------------------------------------------------------------------------------
 
+
+
+
+    private void createPathForUnsortedFiles() {
+        setName(this.getFile().getName());
+        setType("Unsorted");
+    }
+
     public void createAllNeededPaths(String destinationPath) {
-        createNewAbsolutePathWithoutFileName(destinationPath);
+        createNewAbsolutePathOnlyFolders(destinationPath);
         createNewAbsolutePathName();
     }
 
@@ -161,16 +171,18 @@ public class InputFile {
         absolutePathWithFileName = absolutePathOnlyFolders + name;
     }
 
-    private void createNewAbsolutePathWithoutFileName(String destinationPath) {
-
+    private void createNewAbsolutePathOnlyFolders(String destinationPath) {
         //Creating one folder for all type of video.
-        if (type.equals("MP4") || type.equals("MOV") || type.equals("M4V") || type.equals("3G2") || type.equals("3GP") || type.equals("AVI")) {
+        if (type.equals("MP4") || type.equals("MOV") || type.equals("M4V") || type.equals("3G2") || type.equals("3GP") || type.equals("AVI") || type.equals("VOB")) {
             type = "VIDEO";
         }
-
-        absolutePathOnlyFolders = destinationPath + "\\" + type + "\\" + year + "\\" + month +
-                " " + day +
-                "\\";
+        if (type.equals("Unsorted")) {
+            absolutePathOnlyFolders = destinationPath + "\\" + type + "\\";
+        } else {
+            absolutePathOnlyFolders = destinationPath + "\\" + type + "\\" + year + "\\" + month +
+                    " " + day +
+                    "\\";
+        }
     }
 
     private String replaceMonthName(String month) {

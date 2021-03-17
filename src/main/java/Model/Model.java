@@ -111,6 +111,7 @@ public class Model implements Runnable {
 
 
     public void run() {
+
         Log.write("<<< Start " + sourcePathName + " >>>");
             setPercentOfDone(0);//If doesn't set zero then in some cases progress scale won't be showed.
             allFilesOfInputFolderSize = calculateSourceFolderSize(new File(sourcePathName));
@@ -127,7 +128,7 @@ public class Model implements Runnable {
             setMessageToViewer("All Photo were copy");
             setCopiedFilesSize(0);
 
-        Log.write("<<< End " + sourcePathName + " >>>");
+        Log.write("<<< End " + sourcePathName + " >>>\n\r\n\r\n\r");
     }
 
 

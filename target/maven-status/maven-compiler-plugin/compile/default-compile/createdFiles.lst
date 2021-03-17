@@ -2,7 +2,6 @@ Viewer\Viewer.class
 Viewer\MyButton.class
 Model\Log.class
 Model\Model.class
-Model\testGit.class
 Start.class
 Viewer\MyFonts.class
 Viewer\MyRadioButton.class

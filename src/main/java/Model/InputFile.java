@@ -135,7 +135,7 @@ public class InputFile {
             createAllNeededPaths(Model.getDestinationPathName());
 
         } catch (Exception empty) {
-            //All files will be placed to folder unsorted. But it might be not photos or videos.
+            //All files will be placed to folder unsorted. But it might be not photos or videos. Size larger than 5 mb.
             if(this.getFile().length() > 5000000) {
                 createPathForUnsortedFiles();
                 createAllNeededPaths(Model.getDestinationPathName());

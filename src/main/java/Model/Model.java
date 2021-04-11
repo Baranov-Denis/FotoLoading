@@ -13,7 +13,6 @@ public class Model implements Runnable {
     private String messageToViewer;
     private int percentOfDone;
     private boolean copySelected = true;
-
     private long allFilesOfInputFolderSize;
     private long copiedFilesSize;
 
@@ -113,20 +112,20 @@ public class Model implements Runnable {
     public void run() {
 
         Log.write("<<< Start " + sourcePathName + " >>>");
-            setPercentOfDone(0);//If doesn't set zero then in some cases progress scale won't be showed.
-            allFilesOfInputFolderSize = calculateSourceFolderSize(new File(sourcePathName));
+        setPercentOfDone(0);//If doesn't set zero then in some cases progress scale won't be showed.
+        allFilesOfInputFolderSize = calculateSourceFolderSize(new File(sourcePathName));
 
 
-            if (thereIsEnoughFreeSpaceForCopying() || !copySelected) {
-                startProcess(sourcePathName);//We get input files.
-            } else {
-                setPercentOfDone(100);
-                setMessageToViewer("Space is not Enough");
-                return;
-            }
+        if (thereIsEnoughFreeSpaceForCopying() || !copySelected) {
+            startProcess(sourcePathName);//We get input files.
+        } else {
             setPercentOfDone(100);
-            setMessageToViewer("All Photo were copy");
-            setCopiedFilesSize(0);
+            setMessageToViewer("Space is not Enough");
+            return;
+        }
+        setPercentOfDone(100);
+        setMessageToViewer("All Photo were copy");
+        setCopiedFilesSize(0);
 
         Log.write("<<< End " + sourcePathName + " >>>\n\r\n\r\n\r");
     }
@@ -164,7 +163,7 @@ public class Model implements Runnable {
 
 
                 } else if (/*file.length() > 50000 && !file.getAbsolutePath().contains("cof") &&*/isCopyingContinues()) {
-                        startCopyingFile(new InputFile(file));
+                    startCopyingFile(new InputFile(file));
                     calculatePercentOfDone();
                 }
 

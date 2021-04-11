@@ -3,11 +3,14 @@ package Viewer;
 import Controller.Controller;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 
-public class Viewer extends JFrame implements KeyListener  {
+public class Viewer extends JFrame implements KeyListener {
     static JFrame frame = new JFrame();
     static JPanel panel = new JPanel();
     final Controller controller;
@@ -24,14 +27,14 @@ public class Viewer extends JFrame implements KeyListener  {
         setFrameLocation();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(346, 380);
+        frame.setSize(346, 415);
         frame.setTitle("PhotoLoader");
 
         frame.setLayout(new FlowLayout());
         frame.setAlwaysOnTop(false);
         frame.add(panel);
 
-        panel.setPreferredSize(new Dimension(340, 380));
+        panel.setPreferredSize(new Dimension(340, 415));
         panel.setBackground(MyColors.BACKGROUND);
     }
 
@@ -68,7 +71,7 @@ public class Viewer extends JFrame implements KeyListener  {
         Dimension screenSize = kit.getScreenSize();
         int screenHeight = screenSize.height;
         int screenWidth = screenSize.width;
-        frame.setLocation((screenWidth - 360) , (screenHeight - 450) );
+        frame.setLocation((screenWidth - 360), (screenHeight - 450));
 
     }
 
@@ -78,6 +81,31 @@ public class Viewer extends JFrame implements KeyListener  {
 
         ImageIcon img = new ImageIcon("H:\\FotoLoading\\photo.png");
         frame.setIconImage(img.getImage());
+
+/***
+ *New
+ *
+ */
+        JMenuBar menuBar = new JMenuBar();
+
+        menuBar.setPreferredSize(new Dimension(330, 30));
+        menuBar.setBackground(MyColors.BUTTON_COLOR);
+        menuBar.setMargin(new Insets(-5, 0, 0, 0));
+        menuBar.setForeground(MyColors.FONT);
+        menuBar.setBorder(new BevelBorder(BevelBorder.RAISED));
+        JMenu menu = new JMenu("Menu");
+        menu.setForeground(MyColors.FONT);
+        menu.setCursor(new Cursor(Cursor.HAND_CURSOR));
+  
+
+
+        JMenuItem load = new JMenuItem("Load");
+        menuBar.add(menu);
+        menu.add(load);
+/***
+ *
+ *
+ */
 
         JLabel textAboveSourceButton = new JLabel("Choose source path:");
 
@@ -144,6 +172,15 @@ public class Viewer extends JFrame implements KeyListener  {
         changeSourcePath.setFocusable(false);
         changeDestinationPath.setFocusable(false);
 
+        /***
+         *
+         * New
+         */
+        panel.add(menuBar);
+        /***
+         *
+         *
+         */
         panel.add(textAboveSourceButton);
         panel.add(changeSourcePath);
         panel.add(textAboveDestinationButton);
@@ -170,8 +207,8 @@ public class Viewer extends JFrame implements KeyListener  {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode()== KeyEvent.VK_ENTER){
-            if(!loading) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (!loading) {
                 controller.runExecuteCopyPhoto();
             }
         }
@@ -196,7 +233,7 @@ public class Viewer extends JFrame implements KeyListener  {
         }
     }
 
-    private void chooseDestinationPath(ActionEvent e){
+    private void chooseDestinationPath(ActionEvent e) {
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File(destinationPath));
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

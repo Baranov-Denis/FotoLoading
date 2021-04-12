@@ -27,11 +27,12 @@ public class Viewer extends JFrame implements KeyListener {
         setFrameLocation();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(346, 415);
+        frame.setSize(346, 410);
         frame.setTitle("PhotoLoader");
 
-        frame.setLayout(new FlowLayout());
         frame.setAlwaysOnTop(false);
+        frame.setResizable(false);
+        //size of frame won't be changed
         frame.add(panel);
 
         panel.setPreferredSize(new Dimension(340, 415));
@@ -88,20 +89,23 @@ public class Viewer extends JFrame implements KeyListener {
  */
         JMenuBar menuBar = new JMenuBar();
 
-        menuBar.setPreferredSize(new Dimension(330, 30));
         menuBar.setBackground(MyColors.BUTTON_COLOR);
-        menuBar.setMargin(new Insets(-5, 0, 0, 0));
-        menuBar.setForeground(MyColors.FONT);
+        menuBar.setPreferredSize(new Dimension(330, 30));
         menuBar.setBorder(new BevelBorder(BevelBorder.RAISED));
+
         JMenu menu = new JMenu("Menu");
         menu.setForeground(MyColors.FONT);
         menu.setCursor(new Cursor(Cursor.HAND_CURSOR));
-  
+
+        JMenu presets = new JMenu("Presets");
+        presets.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
 
         JMenuItem load = new JMenuItem("Load");
         menuBar.add(menu);
-        menu.add(load);
+        menu.add(presets);
+        presets.add(load);
+
 /***
  *
  *
@@ -176,7 +180,8 @@ public class Viewer extends JFrame implements KeyListener {
          *
          * New
          */
-        panel.add(menuBar);
+        frame.setJMenuBar(menuBar);
+
         /***
          *
          *

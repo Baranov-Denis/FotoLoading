@@ -134,14 +134,19 @@ public class Viewer extends JFrame implements KeyListener {
 
 
 
-        JLabel textAboveSourceButton = new JLabel("Choose source path:");
+        JLabel textAboveSourceButton = new JLabel("Choose source path:",SwingConstants.LEFT);
+        textAboveSourceButton.setForeground(MyColors.FONT);
+        textAboveSourceButton.setPreferredSize(new Dimension(315,18));
+
 
 
         MyButton changeSourcePath = new MyButton(sourcePath);
         changeSourcePath.addActionListener(this::chooseSourcePath);
 
 
-        JLabel textAboveDestinationButton = new JLabel("Choose destination path:");
+        JLabel textAboveDestinationButton = new JLabel("Choose destination path:",SwingConstants.LEFT);
+        textAboveDestinationButton.setForeground(MyColors.FONT);
+        textAboveDestinationButton.setPreferredSize(new Dimension(315,18));
 
         MyButton changeDestinationPath = new MyButton(destinationPath);
         changeDestinationPath.addActionListener(this::chooseDestinationPath);
@@ -235,7 +240,7 @@ public class Viewer extends JFrame implements KeyListener {
         frame.add(panel);
         panel.add(label);
 
-        MyButton yes = new MyButton("Yes");
+        MyButton yes = new MyButton("Delete");
         MyButton chancel = new MyButton("Chancel");
 
 

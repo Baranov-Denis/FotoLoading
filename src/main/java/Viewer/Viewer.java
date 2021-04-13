@@ -1,13 +1,18 @@
 package Viewer;
 
 import Controller.Controller;
+import Model.PathPreset;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
+import java.util.ArrayList;
 
-public class Viewer extends JFrame implements KeyListener  {
+public class Viewer extends JFrame implements KeyListener {
     static JFrame frame = new JFrame();
     static JPanel panel = new JPanel();
     final Controller controller;
@@ -17,22 +22,35 @@ public class Viewer extends JFrame implements KeyListener  {
     private boolean loading;
     private int progressBarValue;
     private boolean copySelected;
+    private ArrayList<PathPreset> listOfPresets;
+    private String currentPreset;
 
+    public void setCurrentPreset(String currentPreset) {
+        this.currentPreset = currentPreset;
+    }
 
     public Viewer(Controller controller) {
         this.controller = controller;
+        listOfPresets = controller.getListOfPresets();
+
+
         setFrameLocation();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(346, 380);
+        frame.setSize(346, 410);
         frame.setTitle("PhotoLoader");
 
-        frame.setLayout(new FlowLayout());
         frame.setAlwaysOnTop(false);
+        frame.setResizable(false);
+        //size of frame won't be changed
         frame.add(panel);
 
-        panel.setPreferredSize(new Dimension(340, 380));
+        panel.setPreferredSize(new Dimension(340, 415));
         panel.setBackground(MyColors.BACKGROUND);
+    }
+
+    public void setListOfPresets(ArrayList<PathPreset> listOfPresets) {
+        this.listOfPresets = listOfPresets;
     }
 
     public void setCopySelected(boolean copySelected) {
@@ -68,7 +86,7 @@ public class Viewer extends JFrame implements KeyListener  {
         Dimension screenSize = kit.getScreenSize();
         int screenHeight = screenSize.height;
         int screenWidth = screenSize.width;
-        frame.setLocation((screenWidth - 360) , (screenHeight - 450) );
+        frame.setLocation((screenWidth - 360), (screenHeight - 450));
 
     }
 
@@ -78,15 +96,57 @@ public class Viewer extends JFrame implements KeyListener  {
 
         ImageIcon img = new ImageIcon("H:\\FotoLoading\\photo.png");
         frame.setIconImage(img.getImage());
+        currentPreset = listOfPresets.get(0).getPresetName();
 
-        JLabel textAboveSourceButton = new JLabel("Choose source path:");
+        JMenuBar menuBar = new JMenuBar();
+
+        menuBar.setBackground(MyColors.BUTTON_COLOR);
+        menuBar.setPreferredSize(new Dimension(330, 30));
+        menuBar.setBorder(new BevelBorder(BevelBorder.RAISED));
+
+        JMenu menu = new JMenu("Menu");
+        menu.setForeground(MyColors.FONT);
+        menu.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JMenu presets = new JMenu("Presets");
+        presets.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JMenuItem saveCurrentPreset = new JMenuItem("Save current preset");
+        saveCurrentPreset.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JMenuItem deleteCurrentPreset = new JMenuItem("Delete current preset");
+        deleteCurrentPreset.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        saveCurrentPreset.addActionListener(this::savingCurrentPreset);
+
+        deleteCurrentPreset.addActionListener(this::deletingCurrentPreset);
+
+        menuBar.add(menu);
+        menu.add(presets);
+        menu.add(saveCurrentPreset);
+        menu.add(deleteCurrentPreset);
+
+
+        createListOfPresets(presets);
+
+
+
+
+
+
+        JLabel textAboveSourceButton = new JLabel("Choose source path:",SwingConstants.LEFT);
+        textAboveSourceButton.setForeground(MyColors.FONT);
+        textAboveSourceButton.setPreferredSize(new Dimension(315,18));
+
 
 
         MyButton changeSourcePath = new MyButton(sourcePath);
         changeSourcePath.addActionListener(this::chooseSourcePath);
 
 
-        JLabel textAboveDestinationButton = new JLabel("Choose destination path:");
+        JLabel textAboveDestinationButton = new JLabel("Choose destination path:",SwingConstants.LEFT);
+        textAboveDestinationButton.setForeground(MyColors.FONT);
+        textAboveDestinationButton.setPreferredSize(new Dimension(315,18));
 
         MyButton changeDestinationPath = new MyButton(destinationPath);
         changeDestinationPath.addActionListener(this::chooseDestinationPath);
@@ -144,6 +204,8 @@ public class Viewer extends JFrame implements KeyListener  {
         changeSourcePath.setFocusable(false);
         changeDestinationPath.setFocusable(false);
 
+        frame.setJMenuBar(menuBar);
+
         panel.add(textAboveSourceButton);
         panel.add(changeSourcePath);
         panel.add(textAboveDestinationButton);
@@ -164,14 +226,78 @@ public class Viewer extends JFrame implements KeyListener  {
     }
 
 
+    private void deletingCurrentPreset(ActionEvent e){
+        JFrame frame = new JFrame("Confirm deleting");
+        frame.setSize(342, 180);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        JPanel panel = new JPanel();
+        panel.setBackground(MyColors.BACKGROUND);
+        JLabel label =
+                new JLabel("<html><div style=\"text-align: center\">Do you want to delete <br>\""+ currentPreset +
+                "\"?</div></html>");
+        label.setFont(MyFonts.myFont);
+        frame.add(panel);
+        panel.add(label);
+
+        MyButton yes = new MyButton("Delete");
+        MyButton chancel = new MyButton("Chancel");
+
+
+        panel.add(yes);
+        panel.add(chancel);
+        yes.addActionListener(r->{
+            if(!currentPreset.equals("Default")) {
+                controller.deleteCurrentPreset(currentPreset);
+            }
+            frame.dispose();
+        });
+        chancel.addActionListener(t->{
+            frame.dispose();
+        });
+    }
+
+
+    private void savingCurrentPreset(ActionEvent e){
+        JFrame frame = new JFrame("Enter Preset Name:");
+        frame.setSize(350, 170);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        JPanel panel = new JPanel();
+        panel.setBackground(MyColors.BACKGROUND);
+        JTextField fieldForName = new JTextField();
+        fieldForName.setFont(MyFonts.myFont);
+        fieldForName.setBackground(MyColors.BACKGROUND);
+        fieldForName.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        fieldForName.setFocusable(true);
+        fieldForName.setPreferredSize(new Dimension(320,30));
+        MyButton enter = new MyButton("Save");
+        MyButton chancel = new MyButton("Chancel");
+        frame.add(panel);
+        panel.add(fieldForName);
+        panel.add(enter);
+        panel.add(chancel);
+        enter.addActionListener(r->{
+            String  nameForPreset = fieldForName.getText();
+            controller.saveCurrentPreset(nameForPreset);
+            currentPreset = nameForPreset;
+            frame.dispose();
+        });
+        chancel.addActionListener(t->{
+            frame.dispose();
+        });
+
+    }
+
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode()== KeyEvent.VK_ENTER){
-            if(!loading) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (!loading) {
                 controller.runExecuteCopyPhoto();
             }
         }
@@ -196,7 +322,7 @@ public class Viewer extends JFrame implements KeyListener  {
         }
     }
 
-    private void chooseDestinationPath(ActionEvent e){
+    private void chooseDestinationPath(ActionEvent e) {
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File(destinationPath));
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -206,6 +332,20 @@ public class Viewer extends JFrame implements KeyListener  {
             File directory = chooser.getSelectedFile();
             String newDestinationPath = directory.toString();
             controller.setSourcePath(sourcePath, newDestinationPath);
+        }
+    }
+
+    private void createListOfPresets(JMenu presets){
+        for (PathPreset preset : listOfPresets){
+            if(!preset.getPresetName().equals("Default")) {
+               JMenuItem presetName = new JMenuItem(preset.getPresetName());
+                presets.add(presetName);
+                presetName.addActionListener(e -> {
+                    controller.loadPreset(preset.getPresetName());
+                    setCurrentPreset(preset.getPresetName());
+                });
+
+            }
         }
     }
 

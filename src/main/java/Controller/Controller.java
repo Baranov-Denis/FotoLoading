@@ -2,8 +2,10 @@ package Controller;
 
 import Model.Model;
 import Viewer.Viewer;
+import Model.PathPreset;
 
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class Controller {
     private final Model model;
@@ -21,6 +23,8 @@ public class Controller {
 
     public void runApp() {
         model.readSettings();
+        model.loadLastPreset();
+        viewer.setListOfPresets(model.getListOfPresets());
         viewer.setSourcePath(model.getSourcePathName());
         viewer.setDestinationPath(Model.getDestinationPathName());
         viewer.setMessage(model.getMessageToViewer());
@@ -81,7 +85,8 @@ public class Controller {
     public void setSourcePath(String sourcePath, String destination) {
         model.setSourcePathName(sourcePath);
         Model.setDestinationPathName(destination);
-        model.writeSettings(sourcePath, destination);
+        model.changeDefaultPreset();
+        model.writeSettings();
         model.readSettings();
         viewer.setSourcePath(model.getSourcePathName());
         viewer.setDestinationPath(Model.getDestinationPathName());
@@ -119,6 +124,30 @@ public class Controller {
     public void setCopySelected(boolean b) {
         model.setCopySelected(b);
         viewer.setCopySelected(b);
+        viewer.runMainPage();
+    }
+
+    public ArrayList<PathPreset> getListOfPresets() {
+        return model.getListOfPresets();
+    }
+
+    public void saveCurrentPreset(String name) {
+        model.addNewPreset(name);
+        viewer.setListOfPresets(getListOfPresets());
+        viewer.runMainPage();
+    }
+
+    public void loadPreset(String presetName) {
+        model.loadPreset(presetName);
+        viewer.setSourcePath(model.getSourcePathName());
+        viewer.setDestinationPath(Model.getDestinationPathName());
+        viewer.runMainPage();
+    }
+
+    public void deleteCurrentPreset(String presetName){
+        model.deletePreset(presetName);
+        viewer.setSourcePath(model.getSourcePathName());
+        viewer.setDestinationPath(Model.getDestinationPathName());
         viewer.runMainPage();
     }
 }

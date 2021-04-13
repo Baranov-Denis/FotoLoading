@@ -157,7 +157,7 @@ public class Model implements Runnable {
                 destinationPathName = preset.getDestinationPathName();
             }
         }
-       // changeDefaultPreset();
+        changeDefaultPreset();
     }
 
 

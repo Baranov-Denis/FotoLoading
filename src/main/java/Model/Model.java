@@ -3,6 +3,7 @@ package Model;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Model implements Runnable {
@@ -15,10 +16,12 @@ public class Model implements Runnable {
     private boolean copySelected = true;
     private long allFilesOfInputFolderSize;
     private long copiedFilesSize;
+    private final ArrayList<PathPreset> listOfPresets = new ArrayList<>();
 
 
     //--------------------------------------------------- Getters and Setters ------------------------------------
     //------------------------------------------------------------------------------------------------------------
+
 
     public static String getDestinationPathName() {
         return destinationPathName;
@@ -76,33 +79,100 @@ public class Model implements Runnable {
         this.sourcePathName = sourcePathName;
     }
 
+    public ArrayList<PathPreset> getListOfPresets() {
+        return listOfPresets;
+    }
+
 
     //----------------------------------------------- Read and Write Settings ------------------------------------
     //------------------------------------------------------------------------------------------------------------
 
 
     public void readSettings() {
+        String name;
+        String source;
+        String destination;
         try (DataInputStream inputStream = new DataInputStream(new FileInputStream("setting.txt"))) {
-            sourcePathName = inputStream.readUTF();
-            destinationPathName = inputStream.readUTF();
+
+            listOfPresets.clear();
+
+            while (inputStream.available() > 0) {
+                name = inputStream.readUTF();
+                source = inputStream.readUTF();
+                destination = inputStream.readUTF();
+                listOfPresets.add(new PathPreset(name, source, destination));
+            }
+
+            loadLastPreset();
+
             setMessageToViewer("Ready to work");
+
         } catch (Exception e) {
             System.out.println("Exception in readSetting()");
-            setMessageToViewer("Choose input and output Folders");
-            sourcePathName = "D:\\";
-            destinationPathName = "D:\\";
-            writeSettings(sourcePathName, destinationPathName);
+            name = "Default";
+            source = "D:\\";
+            destination = "D:\\";
+            listOfPresets.add(new PathPreset(name, source, destination));
+            writeSettings();
         }
     }
 
-    public void writeSettings(String source, String destination) {
+    public void loadLastPreset(){
+        sourcePathName = listOfPresets.get(0).getSourcePathName();
+        destinationPathName = listOfPresets.get(0).getDestinationPathName();
+    }
+
+    public void deletePreset(String presetName) {
+        int index = 0;
+        for (PathPreset preset : listOfPresets) {
+
+            if (preset.getPresetName().equals(presetName)) {
+               listOfPresets.remove(index);
+                writeSettings();
+                loadLastPreset();
+               return;
+            }
+            index++;
+        }
+        writeSettings();
+        loadLastPreset();
+    }
+
+    public void addNewPreset(String presetName) {
+        listOfPresets.add(new PathPreset(presetName, sourcePathName, destinationPathName));
+        writeSettings();
+    }
+
+    public void changeDefaultPreset() {
+        listOfPresets.set(0, new PathPreset("Default", sourcePathName, destinationPathName));
+        writeSettings();
+    }
+
+
+    public void loadPreset(String presetName) {
+
+        for (PathPreset preset : listOfPresets) {
+            if (preset.getPresetName().equals(presetName)) {
+                sourcePathName = preset.getSourcePathName();
+                destinationPathName = preset.getDestinationPathName();
+            }
+        }
+        changeDefaultPreset();
+    }
+
+
+    public void writeSettings() {
         try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream("setting.txt"))) {
-            outputStream.writeUTF(source);
-            outputStream.writeUTF(destination);
+            for (PathPreset preset : listOfPresets) {
+                outputStream.writeUTF(preset.getPresetName());
+                outputStream.writeUTF(preset.getSourcePathName());
+                outputStream.writeUTF(preset.getDestinationPathName());
+            }
         } catch (Exception f) {
             System.out.println("Exception in writeSetting()");
         }
     }
+
 
 
     //---------------------------------------------- Start Method ------------------------------------------------
@@ -296,6 +366,7 @@ public class Model implements Runnable {
     public void calculatePercentOfDone() {
         setPercentOfDone((int) ((getCopiedFilesSize() * 100) / allFilesOfInputFolderSize));
     }
+
 
 
 }

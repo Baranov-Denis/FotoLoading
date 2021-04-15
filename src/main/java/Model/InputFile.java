@@ -89,7 +89,7 @@ public class InputFile {
             Metadata metadata;
 
             //If length of file smaller than 50000 that its not a photo. .cof is not photo but it will be copied.
-            if (this.getFile().length() < 50000 || this.getFile().getName().contains(".cof")) return;
+            if (/*this.getFile().length() < 50000 ||*/ this.getFile().getName().contains(".cof")) return;
 
             //Here checking existing large files like "TIF". When i tried read Metadata those files, i got OutOfMemory error. It issue in metadata extractor framework.
             //If length of file larger than 500000000 then metadata won't be able to read
@@ -114,6 +114,7 @@ public class InputFile {
 
                     //-------------------------  Getting inputFile name. File name looks like fileName.jpg  ------
                     //--------------------------------------------------------------------------------------------
+
                     if (tag.toString().contains("[File] File Name")) {
                         setName(tag.toString().substring(18).trim());
                     }
